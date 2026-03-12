@@ -182,11 +182,11 @@ function calcFlyingScore({
   // 6–8 м/с — возможно, но риск турбулентности
   // 8–10 м/с — нежелательно
   // > 10 м/с — опасно
-  if (windSpeed < 2)       score -= 35;
+  if (windSpeed < 3)       score -= 35;
   else if (windSpeed > 10) score -= 65;
   else if (windSpeed > 8)  score -= 40;
   else if (windSpeed > 6)  score -= 15;
-  // 2–6 м/с — без штрафа (оптимум)
+  // 3–6 м/с — без штрафа (оптимум)
 
   // Сдвиг ветра по высоте (разница 10м → 80м)
   const shear = windSpeed80 - windSpeed;

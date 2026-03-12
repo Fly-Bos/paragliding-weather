@@ -234,8 +234,8 @@ export default async function HomePage() {
                 <div className="text-xs font-semibold text-gray-300 mb-1.5">Скорость ветра (80м)</div>
                 <div className="space-y-0.5 text-xs">
                   {[
-                    { range: "< 2 м/с",   pen: "−35", note: "слишком слабый" },
-                    { range: "2–6 м/с",   pen: "0",   note: "оптимум"        },
+                    { range: "< 3 м/с",   pen: "−35", note: "слишком слабый" },
+                    { range: "3–6 м/с",   pen: "0",   note: "оптимум"        },
                     { range: "6–8 м/с",   pen: "−15", note: "риск турбул."   },
                     { range: "8–10 м/с",  pen: "−40", note: "нежелательно"   },
                     { range: "> 10 м/с",  pen: "−65", note: "опасно"         },
