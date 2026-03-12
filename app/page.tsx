@@ -43,14 +43,27 @@ function isToday(dateStr: string): boolean {
   return dateStr === today;
 }
 
+async function fetchBatched(batchSize = 5, delayMs = 300) {
+  const results = [];
+  for (let i = 0; i < LOCATIONS.length; i += batchSize) {
+    const batch = LOCATIONS.slice(i, i + batchSize);
+    const batchResults = await Promise.all(
+      batch.map((loc) =>
+        fetchWeather(loc.lat, loc.lon, loc.winds)
+          .then((hours) => ({ loc, hours }))
+          .catch(() => null)
+      )
+    );
+    results.push(...batchResults);
+    if (i + batchSize < LOCATIONS.length) {
+      await new Promise((r) => setTimeout(r, delayMs));
+    }
+  }
+  return results;
+}
+
 export default async function HomePage() {
-  const results = await Promise.all(
-    LOCATIONS.map((loc) =>
-      fetchWeather(loc.lat, loc.lon, loc.winds)
-        .then((hours) => ({ loc, hours }))
-        .catch(() => null)
-    )
-  );
+  const results = await fetchBatched();
 
   const firstResult = results.find((r) => r !== null);
   if (!firstResult) return <div className="text-white p-8">Ошибка загрузки данных</div>;
