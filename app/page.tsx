@@ -16,7 +16,7 @@ function getBestDayHour(hours: ForecastHour[], dateStr: string): ForecastHour | 
   const dayHours = hours.filter((h) => {
     if (!h.time.startsWith(dateStr)) return false;
     const hour = new Date(h.time).getHours();
-    return hour >= 9 && hour <= 18;
+    return hour >= 10 && hour <= 16;
   });
   if (!dayHours.length) return null;
   return dayHours.reduce((best, cur) =>
