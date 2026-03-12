@@ -70,7 +70,14 @@ export default async function ForecastPage({
 
           {/* Meta */}
           <div className="mt-2 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-gray-500">
-            <span>{location.lat.toFixed(4)}°N, {location.lon.toFixed(4)}°E</span>
+            <a
+              href={`https://yandex.ru/maps/?ll=${location.lon},${location.lat}&z=14&l=sat,skl&pt=${location.lon},${location.lat}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-blue-400 transition-colors"
+            >
+              {location.lat.toFixed(4)}°N, {location.lon.toFixed(4)}°E
+            </a>
             {location.winds !== "–" && (
               <span>
                 Рабочий: <span className="text-blue-300">{location.winds}</span>
