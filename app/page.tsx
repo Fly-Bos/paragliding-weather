@@ -178,9 +178,10 @@ export default async function HomePage() {
                         </span>
                       </div>
 
-                      {/* Gusts + temp */}
+                      {/* Gusts + temp + time */}
                       <div className="flex items-center justify-between text-xs text-gray-500">
                         <span>↑<span className="text-orange-300">{hour.windGusts.toFixed(1)}</span></span>
+                        <span className="text-gray-600">{new Date(hour.time).getHours()}:00</span>
                         <span className="text-gray-300">{hour.temperature.toFixed(0)}°</span>
                       </div>
 
