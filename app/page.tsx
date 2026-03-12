@@ -129,7 +129,7 @@ export default async function HomePage() {
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-1.5 sm:gap-2">
-                {items.filter(({ hour }) => hour.flyingScore > 0).map(({ id, name, winds, hour }) => {
+                {items.map(({ id, name, winds, hour }) => {
                   const matchBorder =
                     hour.windDirMatch === "perfect" ? "border-green-500/50 bg-green-900/15" :
                     hour.windDirMatch === "good"    ? "border-lime-500/40 bg-lime-900/10" :
