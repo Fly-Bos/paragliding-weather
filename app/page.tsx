@@ -12,16 +12,16 @@ interface LocationDay {
   hour: ForecastHour;
 }
 
-function getNoonHour(hours: ForecastHour[], dateStr: string): ForecastHour | null {
-  const dayHours = hours.filter((h) => h.time.startsWith(dateStr));
-  if (!dayHours.length) return null;
-  const noon = dayHours.find((h) => h.time.includes("T12:00"));
-  if (noon) return noon;
-  return dayHours.reduce((prev, cur) => {
-    const ph = new Date(prev.time).getHours();
-    const ch = new Date(cur.time).getHours();
-    return Math.abs(ch - 12) < Math.abs(ph - 12) ? cur : prev;
+function getBestDayHour(hours: ForecastHour[], dateStr: string): ForecastHour | null {
+  const dayHours = hours.filter((h) => {
+    if (!h.time.startsWith(dateStr)) return false;
+    const hour = new Date(h.time).getHours();
+    return hour >= 9 && hour <= 18;
   });
+  if (!dayHours.length) return null;
+  return dayHours.reduce((best, cur) =>
+    cur.flyingScore > best.flyingScore ? cur : best
+  );
 }
 
 function getDayDates(hours: ForecastHour[]): string[] {
@@ -61,7 +61,7 @@ export default async function HomePage() {
     const items: LocationDay[] = [];
     for (const result of results) {
       if (!result) continue;
-      const hour = getNoonHour(result.hours, dateStr);
+      const hour = getBestDayHour(result.hours, dateStr);
       if (!hour) continue;
       items.push({ id: result.loc.id, name: result.loc.name, winds: result.loc.winds, hour });
     }
