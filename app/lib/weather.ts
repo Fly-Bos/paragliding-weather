@@ -49,21 +49,27 @@ function minAngularDiff(current: number, targets: number[]): number {
 
 export type WindDirMatch = "perfect" | "good" | "off" | "bad" | "any";
 
-// Косинусная модель: подъёмная сила ∝ cos(θ), где θ — отклонение от рабочего ветра.
-// penalty = -80 × (1 − cos(θ)), макс −80 при 90°, обрезается до −100 при >90°.
-// Примеры: 0°→0, 22.5°→−6, 30°→−11, 45°→−23, 60°→−40, 90°→−80, >90°→−100
+// Рабочий диапазон: 0–45°. За пределами 45° — полный штраф −100.
+// Внутри диапазона косинусная модель: penalty = -100 × (1 − cos(θ × 2)), чтобы при 45° = −100.
+// Примеры: 0°→0, 15°→−13, 22.5°→−29, 30°→−50, 45°→−100, >45°→−100
 function calcWindDirMatch(currentDeg: number, workingWinds: string): { match: WindDirMatch; penalty: number } {
   const targets = parseWorkingWinds(workingWinds);
   if (targets.length === 0) return { match: "any", penalty: 0 };
 
   const diff = minAngularDiff(currentDeg, targets); // 0–180°
-  const rad = (diff * Math.PI) / 180;
-  const penalty = -Math.min(100, Math.round(80 * (1 - Math.cos(rad))));
+
+  let penalty: number;
+  if (diff > 45) {
+    penalty = -100;
+  } else {
+    const rad = (diff * 2 * Math.PI) / 180;
+    penalty = -Math.round(100 * (1 - Math.cos(rad)));
+  }
 
   let match: WindDirMatch;
-  if (diff <= 22.5)    match = "perfect";
-  else if (diff <= 45) match = "good";
-  else if (diff <= 90) match = "off";
+  if (diff <= 15)      match = "perfect";
+  else if (diff <= 30) match = "good";
+  else if (diff <= 45) match = "off";
   else                 match = "bad";
 
   return { match, penalty };

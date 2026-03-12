@@ -193,20 +193,18 @@ export default async function HomePage() {
             <div>
               <div className="text-xs font-semibold text-gray-300 mb-2">Направление ветра — главный фактор</div>
               <p className="text-xs text-gray-500 mb-2">
-                Подъёмная сила при динамическом парении пропорциональна{" "}
-                <span className="text-gray-300">cos(θ)</span>, где θ — отклонение от рабочего ветра точки.
-                Штраф считается по формуле: <span className="text-gray-300">−80 × (1 − cos θ)</span>
+                Рабочий диапазон: <span className="text-gray-300">0–45°</span>. За пределами 45° — полный штраф −100.
+                Внутри диапазона косинусная модель: <span className="text-gray-300">−100 × (1 − cos(θ × 2))</span>
               </p>
               <div className="grid grid-cols-4 gap-1 text-xs">
                 {[
                   { deg: "0°",   penalty: "0",    label: "идеал",   color: "text-green-400" },
-                  { deg: "22°",  penalty: "−6",   label: "отлично", color: "text-green-400" },
-                  { deg: "30°",  penalty: "−11",  label: "хорошо",  color: "text-lime-400"  },
-                  { deg: "45°",  penalty: "−23",  label: "хорошо",  color: "text-lime-400"  },
-                  { deg: "60°",  penalty: "−40",  label: "сложно",  color: "text-yellow-400"},
-                  { deg: "75°",  penalty: "−59",  label: "сложно",  color: "text-yellow-400"},
-                  { deg: "90°",  penalty: "−80",  label: "нельзя",  color: "text-red-400"   },
-                  { deg: ">90°", penalty: "−100", label: "нельзя",  color: "text-red-400"   },
+                  { deg: "15°",  penalty: "−13",  label: "отлично", color: "text-green-400" },
+                  { deg: "22°",  penalty: "−29",  label: "хорошо",  color: "text-lime-400"  },
+                  { deg: "30°",  penalty: "−50",  label: "хорошо",  color: "text-lime-400"  },
+                  { deg: "37°",  penalty: "−71",  label: "сложно",  color: "text-yellow-400"},
+                  { deg: "45°",  penalty: "−100", label: "нельзя",  color: "text-red-400"   },
+                  { deg: ">45°", penalty: "−100", label: "нельзя",  color: "text-red-400"   },
                 ].map((r) => (
                   <div key={r.deg} className="bg-white/5 rounded p-1.5 text-center">
                     <div className="text-gray-300 font-mono">{r.deg}</div>
