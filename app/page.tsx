@@ -114,18 +114,13 @@ export default async function HomePage({
             </div>
             <div className="text-xs text-gray-600 shrink-0">{now} Екб</div>
           </div>
-          {/* Title + model selector */}
-          <div className="flex items-center justify-between gap-2">
-            <div className="min-w-0">
-              <h1 className="text-xl sm:text-2xl font-bold text-white leading-tight">Сводка на 7 дней</h1>
-              <p className="text-gray-500 text-xs mt-0.5">лучший час 10–16:00 · ветер 80м</p>
-            </div>
-            <div className="shrink-0">
-              <Suspense>
-                <ModelSelector current={model} />
-              </Suspense>
-            </div>
-          </div>
+          {/* Title */}
+          <h1 className="text-xl sm:text-2xl font-bold text-white leading-tight">Сводка на 7 дней</h1>
+          <p className="text-gray-500 text-xs mt-0.5 mb-2">лучший час 10–16:00 · ветер 80м</p>
+          {/* Model selector — full width on mobile */}
+          <Suspense>
+            <ModelSelector current={model} />
+          </Suspense>
         </header>
 
         {/* Legend */}

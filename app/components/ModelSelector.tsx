@@ -26,22 +26,24 @@ export default function ModelSelector({ current }: Props) {
   };
 
   return (
-    <div className="flex items-center gap-1 flex-wrap">
-      <span className="text-xs text-gray-500 mr-1">Модель:</span>
-      {MODELS.map((m) => (
-        <button
-          key={m.id}
-          onClick={() => handleClick(m.id)}
-          title={m.hint}
-          className={`text-xs px-2 py-1 rounded-md transition-colors ${
-            current === m.id
-              ? "bg-violet-600 text-white font-semibold"
-              : "bg-white/5 text-gray-400 hover:bg-white/10"
-          }`}
-        >
-          {m.label}
-        </button>
-      ))}
+    <div className="flex items-center gap-1">
+      <span className="text-xs text-gray-500 mr-1 shrink-0">Модель:</span>
+      <div className="flex flex-1 gap-1">
+        {MODELS.map((m) => (
+          <button
+            key={m.id}
+            onClick={() => handleClick(m.id)}
+            title={m.hint}
+            className={`flex-1 sm:flex-none text-xs px-2 py-1 rounded-md transition-colors ${
+              current === m.id
+                ? "bg-violet-600 text-white font-semibold"
+                : "bg-white/5 text-gray-400 hover:bg-white/10"
+            }`}
+          >
+            {m.label}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }
