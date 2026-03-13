@@ -61,17 +61,18 @@ interface MetarData {
   fltcat?: string;
 }
 
-async function fetchMetar(): Promise<MetarData | null> {
+async function fetchMetars(): Promise<Record<string, MetarData>> {
   try {
     const res = await fetch(
-      "https://aviationweather.gov/api/data/metar?ids=UWOO&format=json",
+      "https://aviationweather.gov/api/data/metar?ids=UWOO,UWOR&format=json",
       { next: { revalidate: 1800 } }
     );
-    if (!res.ok) return null;
+    if (!res.ok) return {};
     const data = await res.json();
-    return Array.isArray(data) && data.length > 0 ? data[0] : null;
+    if (!Array.isArray(data)) return {};
+    return Object.fromEntries(data.map((m: MetarData & { icaoId?: string }) => [m.icaoId ?? "", m]));
   } catch {
-    return null;
+    return {};
   }
 }
 
@@ -107,9 +108,9 @@ export default async function HomePage({
 }) {
   const params = await searchParams;
   const model = parseModel(params.model);
-  const [results, metar] = await Promise.all([fetchBatched(model), fetchMetar()]);
+  const [results, metars] = await Promise.all([fetchBatched(model), fetchMetars()]);
 
-  const firstResult = results.find((r) => r !== null);
+  const firstResult = results.find((r: { loc: { id: string }; hours: ForecastHour[] } | null) => r !== null);
   if (!firstResult) return <div className="text-white p-8">Ошибка загрузки данных</div>;
   const dates = getDayDates(firstResult.hours);
 
@@ -164,67 +165,77 @@ export default async function HomePage({
           ))}
         </div>
 
-        {/* METAR UWOO */}
-        {metar && (() => {
-          const windMs = (metar.wspd * 0.514).toFixed(1);
-          const gustMs = metar.wgst ? (metar.wgst * 0.514).toFixed(1) : null;
-          const visKm = typeof metar.visib === "number" ? (metar.visib * 1.609).toFixed(1) : metar.visib;
-          const qnh = metar.altim ? Math.round(metar.altim * 33.864) : null;
-          const fltColor =
-            metar.fltcat === "VFR"  ? "text-green-400" :
-            metar.fltcat === "MVFR" ? "text-lime-400" :
-            metar.fltcat === "IFR"  ? "text-yellow-400" :
-                                      "text-red-400";
+        {/* METAR UWOO + UWOR */}
+        {Object.keys(metars).length > 0 && (() => {
+          const AIRPORTS: { id: string; label: string }[] = [
+            { id: "UWOO", label: "UWOO Оренбург" },
+            { id: "UWOR", label: "UWOR Орск" },
+          ];
           return (
-            <div className="bg-white/5 border border-white/10 rounded-xl p-3 sm:p-4 mb-5 sm:mb-6">
-              <div className="flex items-center justify-between gap-2 mb-2">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-semibold text-gray-200">✈ UWOO Оренбург — факт</span>
-                  {metar.fltcat && (
-                    <span className={`text-xs font-bold ${fltColor}`}>{metar.fltcat}</span>
-                  )}
-                </div>
-              </div>
+            <div className="grid sm:grid-cols-2 gap-3 mb-5 sm:mb-6">
+              {AIRPORTS.map(({ id, label }) => {
+                const m = metars[id];
+                if (!m) return null;
+                const windMs = (m.wspd * 0.514).toFixed(1);
+                const gustMs = m.wgst ? (m.wgst * 0.514).toFixed(1) : null;
+                const visKm = typeof m.visib === "number" ? (m.visib * 1.609).toFixed(1) : m.visib;
+                const qnh = m.altim ? Math.round(m.altim * 33.864) : null;
+                const fltColor =
+                  m.fltcat === "VFR"  ? "text-green-400" :
+                  m.fltcat === "MVFR" ? "text-lime-400" :
+                  m.fltcat === "IFR"  ? "text-yellow-400" :
+                                        "text-red-400";
+                return (
+                  <div key={id} className="bg-white/5 border border-white/10 rounded-xl p-3 sm:p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-xs font-semibold text-gray-200">✈ {label} — факт</span>
+                      {m.fltcat && (
+                        <span className={`text-xs font-bold ${fltColor}`}>{m.fltcat}</span>
+                      )}
+                    </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs mb-2">
-                <div className="bg-white/5 rounded-lg p-2">
-                  <div className="text-gray-500 mb-0.5">Ветер</div>
-                  <div className="flex items-center gap-1">
-                    {metar.wdir !== null && <WindArrow degrees={metar.wdir} size={13} color="#60a5fa" />}
-                    <span className="text-blue-300 font-bold">{windMs} м/с</span>
-                    {metar.wdir !== null && <span className="text-gray-400">{windDirLabel(metar.wdir)}</span>}
+                    <div className="grid grid-cols-2 gap-2 text-xs mb-2">
+                      <div className="bg-white/5 rounded-lg p-2">
+                        <div className="text-gray-500 mb-0.5">Ветер</div>
+                        <div className="flex items-center gap-1">
+                          {m.wdir !== null && <WindArrow degrees={m.wdir} size={13} color="#60a5fa" />}
+                          <span className="text-blue-300 font-bold">{windMs} м/с</span>
+                          {m.wdir !== null && <span className="text-gray-400">{windDirLabel(m.wdir)}</span>}
+                        </div>
+                        {gustMs && <div className="text-orange-300 mt-0.5">↑{gustMs} м/с</div>}
+                      </div>
+
+                      <div className="bg-white/5 rounded-lg p-2">
+                        <div className="text-gray-500 mb-0.5">Темп / Точка росы</div>
+                        <div className="text-gray-200 font-bold">{m.temp}° / {m.dewp}°</div>
+                      </div>
+
+                      <div className="bg-white/5 rounded-lg p-2">
+                        <div className="text-gray-500 mb-0.5">Видимость</div>
+                        <div className="text-gray-200 font-bold">{visKm} км</div>
+                      </div>
+
+                      <div className="bg-white/5 rounded-lg p-2">
+                        <div className="text-gray-500 mb-0.5">QNH</div>
+                        <div className="text-gray-200 font-bold">{qnh} гПа</div>
+                      </div>
+                    </div>
+
+                    {m.wxString && (
+                      <div className="text-xs text-yellow-300 mb-1.5">{m.wxString}</div>
+                    )}
+
+                    <details className="group">
+                      <summary className="text-xs text-gray-600 cursor-pointer hover:text-gray-400 select-none">
+                        METAR ▸
+                      </summary>
+                      <div className="mt-1 font-mono text-xs text-gray-400 bg-black/30 rounded p-2 break-all">
+                        {m.rawOb}
+                      </div>
+                    </details>
                   </div>
-                  {gustMs && <div className="text-orange-300 mt-0.5">↑{gustMs} м/с</div>}
-                </div>
-
-                <div className="bg-white/5 rounded-lg p-2">
-                  <div className="text-gray-500 mb-0.5">Темп / Точка росы</div>
-                  <div className="text-gray-200 font-bold">{metar.temp}° / {metar.dewp}°</div>
-                </div>
-
-                <div className="bg-white/5 rounded-lg p-2">
-                  <div className="text-gray-500 mb-0.5">Видимость</div>
-                  <div className="text-gray-200 font-bold">{visKm} км</div>
-                </div>
-
-                <div className="bg-white/5 rounded-lg p-2">
-                  <div className="text-gray-500 mb-0.5">QNH</div>
-                  <div className="text-gray-200 font-bold">{qnh} гПа</div>
-                </div>
-              </div>
-
-              {metar.wxString && (
-                <div className="text-xs text-yellow-300 mb-1.5">{metar.wxString}</div>
-              )}
-
-              <details className="group">
-                <summary className="text-xs text-gray-600 cursor-pointer hover:text-gray-400 select-none">
-                  METAR ▸
-                </summary>
-                <div className="mt-1 font-mono text-xs text-gray-400 bg-black/30 rounded p-2 break-all">
-                  {metar.rawOb}
-                </div>
-              </details>
+                );
+              })}
             </div>
           );
         })()}
