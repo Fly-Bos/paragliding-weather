@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Марьевка — погода для парапланеристов",
-  description: "Почасовой прогноз погоды для полётов на параплане. Марьевка, Оренбургская область.",
+  title: "OrenSoarCast - сводка и прогноз по летным местам Оренбургской области",
+  description: "OrenSoarCast - сводка и прогноз по летным местам Оренбургской области",
 };
 
 export default function RootLayout({
