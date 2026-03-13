@@ -7,6 +7,7 @@ import ScoreBadge from "./components/ScoreBadge";
 import WindArrow from "./components/WindArrow";
 import ModelSelector from "./components/ModelSelector";
 import CurrentTime from "./components/CurrentTime";
+import CustomLocations from "./components/CustomLocations";
 
 interface LocationDay {
   id: string;
@@ -243,6 +244,9 @@ export default async function HomePage({
             </div>
           );
         })()}
+
+        {/* Custom locations (localStorage) */}
+        <CustomLocations model={model} dates={dates} />
 
         {/* Days */}
         {dates.map((dateStr) => {

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { LOCATIONS } from "../lib/locations";
 import AddLocationForm from "./AddLocationForm";
+import CustomLocationsList from "./CustomLocationsList";
 
 export default function LocationsPage() {
   return (
@@ -67,6 +68,7 @@ export default function LocationsPage() {
                     </td>
                   </tr>
                 ))}
+                <CustomLocationsList startIndex={LOCATIONS.length} />
               </tbody>
             </table>
           </div>

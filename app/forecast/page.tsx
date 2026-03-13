@@ -35,12 +35,21 @@ function parseModel(raw?: string): WeatherModel {
 export default async function ForecastPage({
   searchParams,
 }: {
-  searchParams: Promise<{ loc?: string; height?: string; model?: string }>;
+  searchParams: Promise<{ loc?: string; height?: string; model?: string; lat?: string; lon?: string; winds?: string; name?: string }>;
 }) {
   const params = await searchParams;
-  const location = findLocation(params.loc ?? "maryevka");
   const height = parseHeight(params.height);
   const model = parseModel(params.model);
+
+  // Кастомная локация передаётся через lat/lon/winds/name
+  const customLat = parseFloat(params.lat ?? "");
+  const customLon = parseFloat(params.lon ?? "");
+  const isCustom = !isNaN(customLat) && !isNaN(customLon);
+
+  const location = isCustom
+    ? { id: "custom", name: params.name ?? "Локация", lat: customLat, lon: customLon, winds: params.winds ?? "–", notes: undefined }
+    : findLocation(params.loc ?? "maryevka");
+
   const hours = await fetchWeather(location.lat, location.lon, location.winds, model);
   const byDay = groupByDay(hours);
 
@@ -61,11 +70,23 @@ export default async function ForecastPage({
             <h1 className="text-xl sm:text-3xl font-bold text-white truncate">{location.name}</h1>
           </div>
 
-          {/* Controls */}
-          <div className="flex flex-col gap-2">
-            <Suspense>
-              <LocationSelector current={location} />
-            </Suspense>
+          {/* Controls — только для стандартных локаций */}
+          {!isCustom && (
+            <div className="flex flex-col gap-2">
+              <Suspense>
+                <LocationSelector current={location} />
+              </Suspense>
+              <div className="flex flex-wrap gap-2">
+                <Suspense>
+                  <HeightSelector current={height} />
+                </Suspense>
+                <Suspense>
+                  <ModelSelector current={model} />
+                </Suspense>
+              </div>
+            </div>
+          )}
+          {isCustom && (
             <div className="flex flex-wrap gap-2">
               <Suspense>
                 <HeightSelector current={height} />
@@ -74,7 +95,7 @@ export default async function ForecastPage({
                 <ModelSelector current={model} />
               </Suspense>
             </div>
-          </div>
+          )}
 
           {/* Meta */}
           <div className="mt-2 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-gray-500">
