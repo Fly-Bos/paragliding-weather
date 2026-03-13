@@ -107,6 +107,14 @@ export default async function ForecastPage({
             >
               {location.lat.toFixed(4)}°N, {location.lon.toFixed(4)}°E
             </a>
+            <a
+              href={`https://www.windy.com/${location.lat.toFixed(3)}/${location.lon.toFixed(3)}/wind?${location.lat.toFixed(3)},${location.lon.toFixed(3)},13`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-blue-400 transition-colors"
+            >
+              Windy
+            </a>
             {location.winds !== "–" && (
               <span>
                 Рабочий: <span className="text-blue-300">{location.winds}</span>
