@@ -7,6 +7,7 @@ import { fetchWeather } from "../lib/weather";
 import { ForecastHour, WeatherModel } from "../types/weather";
 import ScoreBadge from "./ScoreBadge";
 import WindArrow from "./WindArrow";
+import WeatherIcon from "./WeatherIcon";
 
 function windDirLabel(deg: number): string {
   const dirs = ["С", "СВ", "В", "ЮВ", "Ю", "ЮЗ", "З", "СЗ"];
@@ -165,7 +166,10 @@ export default function DaysSummary({ staticByDay, dates, model }: Props) {
                     </div>
                     <div className="flex items-center justify-between text-xs text-gray-500">
                       <span>↑<span className="text-orange-300">{hour.windGusts.toFixed(1)}</span></span>
-                      <span className="text-gray-600">{new Date(hour.time).getHours()}:00</span>
+                      <span className="flex items-center gap-0.5">
+                        <WeatherIcon code={hour.weatherCode} />
+                        <span className="text-gray-600">{new Date(hour.time).getHours()}:00</span>
+                      </span>
                       <span className="text-gray-300">{hour.temperature.toFixed(0)}°</span>
                     </div>
                     <div className="hidden sm:block mt-1 text-gray-600 text-xs truncate">{winds}</div>

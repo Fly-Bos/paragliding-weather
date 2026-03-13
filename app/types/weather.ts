@@ -19,6 +19,7 @@ export interface HourlyWeather {
   cloudcover_low: number[];
   cape: number[];
   visibility: number[];
+  weather_code: number[];
 }
 
 export interface WeatherData {
@@ -49,4 +50,5 @@ export interface ForecastHour {
   visibility: number;
   flyingScore: number;
   windDirMatch: "perfect" | "good" | "off" | "bad" | "any";
+  weatherCode: number;
 }

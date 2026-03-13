@@ -32,7 +32,7 @@ export default function DaySection({ date, hours, height }: Props) {
         <table className="w-full min-w-[680px]">
           <thead>
             <tr className="text-xs text-gray-500 border-b border-white/10">
-              <th className="py-2 px-3 text-left">Время</th>
+              <th className="py-2 px-3 text-left">Условия · Время</th>
               <th className="py-2 px-3 text-left">Оценка</th>
               <th className="py-2 px-3 text-right">Темп</th>
               <th className="py-2 px-3 text-left">

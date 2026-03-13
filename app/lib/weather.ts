@@ -107,6 +107,7 @@ export async function fetchWeather(lat: number, lon: number, workingWinds = "–
       "cloudcover_low",
       "cape",
       "visibility",
+      "weather_code",
     ].join(",")
   );
   url.searchParams.set("wind_speed_unit", "ms");
@@ -151,6 +152,7 @@ function parseHourly(data: WeatherData, workingWinds: string): ForecastHour[] {
       cloudcoverLow: h.cloudcover_low?.[i] ?? 0,
       cape,
       visibility: h.visibility?.[i] ?? 0,
+      weatherCode: h.weather_code?.[i] ?? 0,
       windDirMatch,
       flyingScore: calcFlyingScore({
         windSpeed: windSpeed80m,

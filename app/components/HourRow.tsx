@@ -4,6 +4,7 @@ import { ForecastHour, WindHeight } from "../types/weather";
 import { formatTime, windDirLabel } from "../lib/weather";
 import WindArrow from "./WindArrow";
 import ScoreBadge from "./ScoreBadge";
+import WeatherIcon from "./WeatherIcon";
 
 interface Props {
   hour: ForecastHour;
@@ -39,9 +40,12 @@ export default function HourRow({ hour, height }: Props) {
         isNight() ? "opacity-50" : ""
       }`}
     >
-      {/* Time */}
+      {/* Time + weather icon */}
       <td className="py-2 px-3 text-gray-300 font-mono text-sm whitespace-nowrap">
-        {formatTime(hour.time)}
+        <div className="flex items-center gap-1.5">
+          <WeatherIcon code={hour.weatherCode} size="md" />
+          {formatTime(hour.time)}
+        </div>
       </td>
 
       {/* Flying score */}
