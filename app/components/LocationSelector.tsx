@@ -21,7 +21,7 @@ export default function LocationSelector({ current }: Props) {
     <select
       value={current.id}
       onChange={handleChange}
-      className="bg-gray-800 border border-white/10 text-white text-sm rounded-lg px-2 py-1.5 sm:px-3 sm:py-2 cursor-pointer focus:outline-none focus:ring-1 focus:ring-blue-500 max-w-[200px] sm:max-w-none"
+      className="w-full sm:w-auto bg-gray-800 border border-white/10 text-white text-sm rounded-lg px-2 py-1.5 sm:px-3 sm:py-2 cursor-pointer focus:outline-none focus:ring-1 focus:ring-blue-500"
     >
       {LOCATIONS.map((loc) => (
         <option key={loc.id} value={loc.id}>

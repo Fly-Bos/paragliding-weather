@@ -67,16 +67,18 @@ export default async function ForecastPage({
           </div>
 
           {/* Controls */}
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-col gap-2">
             <Suspense>
               <LocationSelector current={location} />
             </Suspense>
-            <Suspense>
-              <HeightSelector current={height} />
-            </Suspense>
-            <Suspense>
-              <ModelSelector current={model} />
-            </Suspense>
+            <div className="flex flex-wrap gap-2">
+              <Suspense>
+                <HeightSelector current={height} />
+              </Suspense>
+              <Suspense>
+                <ModelSelector current={model} />
+              </Suspense>
+            </div>
           </div>
 
           {/* Meta */}

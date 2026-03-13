@@ -105,18 +105,22 @@ export default async function HomePage({
       <div className="max-w-6xl mx-auto px-3 sm:px-4 py-5 sm:py-8">
 
         {/* Header */}
-        <header className="mb-6 sm:mb-8">
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <div className="flex items-center gap-1.5 text-blue-400 text-xs sm:text-sm mb-1">
-                <span>🪂</span>
-                <span>Оренбургская область · {LOCATIONS.length} точек</span>
-              </div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-white leading-tight">Сводка на 7 дней</h1>
-              <p className="text-gray-500 text-xs mt-1">лучший час 10:00–16:00 · по оценке · ветер 80м</p>
+        <header className="mb-5 sm:mb-8">
+          {/* Top row: label + time */}
+          <div className="flex items-center justify-between gap-2 mb-1.5">
+            <div className="flex items-center gap-1.5 text-blue-400 text-xs min-w-0">
+              <span className="shrink-0">🪂</span>
+              <span className="truncate">Оренбургская область · {LOCATIONS.length} точек</span>
             </div>
-            <div className="flex flex-col items-end gap-1.5 shrink-0">
-              <div className="text-right text-xs text-gray-600">{now} Екб</div>
+            <div className="text-xs text-gray-600 shrink-0">{now} Екб</div>
+          </div>
+          {/* Title + model selector */}
+          <div className="flex items-center justify-between gap-2">
+            <div className="min-w-0">
+              <h1 className="text-xl sm:text-2xl font-bold text-white leading-tight">Сводка на 7 дней</h1>
+              <p className="text-gray-500 text-xs mt-0.5">лучший час 10–16:00 · ветер 80м</p>
+            </div>
+            <div className="shrink-0">
               <Suspense>
                 <ModelSelector current={model} />
               </Suspense>
@@ -147,9 +151,9 @@ export default async function HomePage({
           const today = isToday(dateStr);
 
           return (
-            <section key={dateStr} className="mb-8 sm:mb-10">
-              <div className="flex items-center gap-2 mb-3">
-                <h2 className={`text-sm sm:text-lg font-bold capitalize ${today ? "text-white" : "text-gray-300"}`}>
+            <section key={dateStr} className="mb-5 sm:mb-8">
+              <div className="flex items-center gap-2 mb-2">
+                <h2 className={`text-sm font-bold capitalize ${today ? "text-white" : "text-gray-300"}`}>
                   {formatDayLabel(dateStr)}
                 </h2>
                 {today && (
@@ -177,17 +181,17 @@ export default async function HomePage({
                     <Link
                       key={id}
                       href={`/forecast?loc=${id}`}
-                      className={`rounded-xl border p-2 sm:p-3 transition-all active:scale-95 hover:brightness-125 ${matchBorder}`}
+                      className={`rounded-xl border p-1.5 sm:p-3 transition-all active:scale-95 hover:brightness-125 ${matchBorder}`}
                     >
                       {/* Name + score */}
-                      <div className="flex items-start justify-between gap-1 mb-1.5">
-                        <span className="text-xs font-medium text-gray-200 leading-tight line-clamp-2">{name}</span>
+                      <div className="flex items-start justify-between gap-1 mb-1">
+                        <span className="text-xs font-medium text-gray-200 leading-tight line-clamp-1 sm:line-clamp-2">{name}</span>
                         <ScoreBadge score={hour.flyingScore} compact />
                       </div>
 
                       {/* Wind 80m */}
                       <div className="flex items-center gap-1 mb-1">
-                        <WindArrow degrees={hour.windDir80m} size={13} color="#a78bfa" />
+                        <WindArrow degrees={hour.windDir80m} size={12} color="#a78bfa" />
                         <span className="text-violet-300 font-bold text-sm">{hour.windSpeed80m.toFixed(1)}</span>
                         <span className="text-gray-500 text-xs">м/с</span>
                         <span className={`text-xs font-medium ${dirColor}`}>
@@ -202,8 +206,8 @@ export default async function HomePage({
                         <span className="text-gray-300">{hour.temperature.toFixed(0)}°</span>
                       </div>
 
-                      {/* Working wind */}
-                      <div className="mt-1 text-gray-600 text-xs truncate">{winds}</div>
+                      {/* Working wind — скрыто на мобиле */}
+                      <div className="hidden sm:block mt-1 text-gray-600 text-xs truncate">{winds}</div>
                     </Link>
                   );
                 })}
