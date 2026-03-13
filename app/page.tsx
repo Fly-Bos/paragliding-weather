@@ -45,6 +45,35 @@ function isToday(dateStr: string): boolean {
   return dateStr === today;
 }
 
+interface MetarData {
+  rawOb: string;
+  obsTime: string;
+  temp: number;
+  dewp: number;
+  wdir: number | null;
+  wspd: number;
+  wgst: number | null;
+  visib: number | string;
+  altim: number;
+  wxString?: string;
+  clouds?: { cover: string; base: number }[];
+  fltcat?: string;
+}
+
+async function fetchMetar(): Promise<MetarData | null> {
+  try {
+    const res = await fetch(
+      "https://aviationweather.gov/api/data/metar?ids=UWOO&format=json",
+      { next: { revalidate: 1800 } }
+    );
+    if (!res.ok) return null;
+    const data = await res.json();
+    return Array.isArray(data) && data.length > 0 ? data[0] : null;
+  } catch {
+    return null;
+  }
+}
+
 const VALID_MODELS: WeatherModel[] = ["best_match", "ecmwf_ifs025", "icon_seamless", "gfs_seamless", "gem_seamless"];
 function parseModel(raw?: string): WeatherModel {
   if (VALID_MODELS.includes(raw as WeatherModel)) return raw as WeatherModel;
@@ -77,7 +106,7 @@ export default async function HomePage({
 }) {
   const params = await searchParams;
   const model = parseModel(params.model);
-  const results = await fetchBatched(model);
+  const [results, metar] = await Promise.all([fetchBatched(model), fetchMetar()]);
 
   const firstResult = results.find((r) => r !== null);
   if (!firstResult) return <div className="text-white p-8">Ошибка загрузки данных</div>;
@@ -137,6 +166,75 @@ export default async function HomePage({
             </div>
           ))}
         </div>
+
+        {/* METAR UWOO */}
+        {metar && (() => {
+          const windMs = (metar.wspd * 0.514).toFixed(1);
+          const gustMs = metar.wgst ? (metar.wgst * 0.514).toFixed(1) : null;
+          const visKm = typeof metar.visib === "number" ? (metar.visib * 1.609).toFixed(1) : metar.visib;
+          const qnh = metar.altim ? Math.round(metar.altim * 33.864) : null;
+          const obsTime = new Date(metar.obsTime).toLocaleTimeString("ru-RU", {
+            hour: "2-digit", minute: "2-digit", timeZone: "Asia/Yekaterinburg",
+          });
+          const fltColor =
+            metar.fltcat === "VFR"  ? "text-green-400" :
+            metar.fltcat === "MVFR" ? "text-lime-400" :
+            metar.fltcat === "IFR"  ? "text-yellow-400" :
+                                      "text-red-400";
+          return (
+            <div className="bg-white/5 border border-white/10 rounded-xl p-3 sm:p-4 mb-5 sm:mb-6">
+              <div className="flex items-center justify-between gap-2 mb-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-semibold text-gray-200">✈ UWOO Оренбург — факт</span>
+                  {metar.fltcat && (
+                    <span className={`text-xs font-bold ${fltColor}`}>{metar.fltcat}</span>
+                  )}
+                </div>
+                <span className="text-xs text-gray-600">{obsTime} Екб</span>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs mb-2">
+                <div className="bg-white/5 rounded-lg p-2">
+                  <div className="text-gray-500 mb-0.5">Ветер</div>
+                  <div className="flex items-center gap-1">
+                    {metar.wdir !== null && <WindArrow degrees={metar.wdir} size={13} color="#60a5fa" />}
+                    <span className="text-blue-300 font-bold">{windMs} м/с</span>
+                    {metar.wdir !== null && <span className="text-gray-400">{windDirLabel(metar.wdir)}</span>}
+                  </div>
+                  {gustMs && <div className="text-orange-300 mt-0.5">↑{gustMs} м/с</div>}
+                </div>
+
+                <div className="bg-white/5 rounded-lg p-2">
+                  <div className="text-gray-500 mb-0.5">Темп / Точка росы</div>
+                  <div className="text-gray-200 font-bold">{metar.temp}° / {metar.dewp}°</div>
+                </div>
+
+                <div className="bg-white/5 rounded-lg p-2">
+                  <div className="text-gray-500 mb-0.5">Видимость</div>
+                  <div className="text-gray-200 font-bold">{visKm} км</div>
+                </div>
+
+                <div className="bg-white/5 rounded-lg p-2">
+                  <div className="text-gray-500 mb-0.5">QNH</div>
+                  <div className="text-gray-200 font-bold">{qnh} гПа</div>
+                </div>
+              </div>
+
+              {metar.wxString && (
+                <div className="text-xs text-yellow-300 mb-1.5">{metar.wxString}</div>
+              )}
+
+              <details className="group">
+                <summary className="text-xs text-gray-600 cursor-pointer hover:text-gray-400 select-none">
+                  METAR ▸
+                </summary>
+                <div className="mt-1 font-mono text-xs text-gray-400 bg-black/30 rounded p-2 break-all">
+                  {metar.rawOb}
+                </div>
+              </details>
+            </div>
+          );
+        })()}
 
         {/* Days */}
         {dates.map((dateStr) => {
