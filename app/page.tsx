@@ -1,5 +1,4 @@
 import { Suspense } from "react";
-import Link from "next/link";
 import { fetchWeather, windDirLabel, MODEL_LABELS } from "./lib/weather";
 import { LOCATIONS } from "./lib/locations";
 import { ForecastHour, WeatherModel } from "./types/weather";
@@ -8,6 +7,7 @@ import WeatherIcon, { metarToWmoCode } from "./components/WeatherIcon";
 import ModelSelector from "./components/ModelSelector";
 import CurrentTime from "./components/CurrentTime";
 import DaysSummary from "./components/DaysSummary";
+import LocationsCount from "./components/LocationsCount";
 
 interface LocationDay {
   id: string;
@@ -127,9 +127,7 @@ export default async function HomePage({
             <div className="flex items-center gap-1.5 text-blue-400 text-xs min-w-0">
               <span className="shrink-0">🪂</span>
               <span className="truncate">Оренбургская область · </span>
-              <Link href="/locations" className="hover:text-blue-300 transition-colors shrink-0">
-                {LOCATIONS.length} точек
-              </Link>
+              <LocationsCount staticCount={LOCATIONS.length} />
             </div>
             <CurrentTime />
           </div>
