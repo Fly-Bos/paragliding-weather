@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { loadCustomLocations, CustomLocation } from "../locations/AddLocationForm";
+import { fetchWeather } from "../lib/weather";
 import { ForecastHour, WeatherModel } from "../types/weather";
 import ScoreBadge from "./ScoreBadge";
 import WindArrow from "./WindArrow";
@@ -73,9 +74,8 @@ export default function DaysSummary({ staticByDay, dates, model }: Props) {
 
     Promise.all(
       locs.map((loc) =>
-        fetch(`/api/weather?lat=${loc.lat}&lon=${loc.lon}&winds=${encodeURIComponent(loc.winds)}&model=${model}`)
-          .then((r) => r.json())
-          .then((hours: ForecastHour[]) => ({ loc, hours }))
+        fetchWeather(loc.lat, loc.lon, loc.winds, model)
+          .then((hours) => ({ loc, hours }))
           .catch(() => null)
       )
     ).then((results) => {
