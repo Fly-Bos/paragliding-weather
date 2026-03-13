@@ -170,9 +170,6 @@ export default async function HomePage({
           const gustMs = metar.wgst ? (metar.wgst * 0.514).toFixed(1) : null;
           const visKm = typeof metar.visib === "number" ? (metar.visib * 1.609).toFixed(1) : metar.visib;
           const qnh = metar.altim ? Math.round(metar.altim * 33.864) : null;
-          const obsTime = new Date(metar.obsTime).toLocaleTimeString("ru-RU", {
-            hour: "2-digit", minute: "2-digit", timeZone: "Asia/Yekaterinburg",
-          });
           const fltColor =
             metar.fltcat === "VFR"  ? "text-green-400" :
             metar.fltcat === "MVFR" ? "text-lime-400" :
@@ -187,7 +184,6 @@ export default async function HomePage({
                     <span className={`text-xs font-bold ${fltColor}`}>{metar.fltcat}</span>
                   )}
                 </div>
-                <span className="text-xs text-gray-600">{obsTime} Екб</span>
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs mb-2">
