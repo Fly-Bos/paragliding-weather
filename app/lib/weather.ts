@@ -68,7 +68,7 @@ function calcWindDirMatch(currentDeg: number, workingWinds: string): { match: Wi
 
   let match: WindDirMatch;
   if (diff <= 15)      match = "perfect";
-  else if (diff <= 30) match = "good";
+  else if (diff <= 22) match = "good";
   else if (diff <= 45) match = "off";
   else                 match = "bad";
 

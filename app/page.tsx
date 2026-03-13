@@ -215,7 +215,7 @@ export default async function HomePage() {
                   { deg: "0°",   penalty: "0",    label: "идеал",   color: "text-green-400" },
                   { deg: "15°",  penalty: "−13",  label: "отлично", color: "text-green-400" },
                   { deg: "22°",  penalty: "−29",  label: "хорошо",  color: "text-lime-400"  },
-                  { deg: "30°",  penalty: "−50",  label: "хорошо",  color: "text-lime-400"  },
+                  { deg: "30°",  penalty: "−50",  label: "сложно",  color: "text-yellow-400"},
                   { deg: "37°",  penalty: "−71",  label: "сложно",  color: "text-yellow-400"},
                   { deg: "45°",  penalty: "−100", label: "нельзя",  color: "text-red-400"   },
                   { deg: ">45°", penalty: "−100", label: "нельзя",  color: "text-red-400"   },
