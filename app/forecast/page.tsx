@@ -8,6 +8,7 @@ import WindChart from "../components/WindChart";
 import LocationSelector from "../components/LocationSelector";
 import HeightSelector from "../components/HeightSelector";
 import ModelSelector from "../components/ModelSelector";
+import CurrentTime from "../components/CurrentTime";
 
 function groupByDay(hours: ForecastHour[]): Record<string, ForecastHour[]> {
   const groups: Record<string, ForecastHour[]> = {};
@@ -42,12 +43,6 @@ export default async function ForecastPage({
   const model = parseModel(params.model);
   const hours = await fetchWeather(location.lat, location.lon, location.winds, model);
   const byDay = groupByDay(hours);
-
-  const now = new Date().toLocaleTimeString("ru-RU", {
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZone: "Asia/Yekaterinburg",
-  });
 
   return (
     <main className="min-h-screen bg-gray-950 text-white">
@@ -97,7 +92,7 @@ export default async function ForecastPage({
                 {location.notes && <span className="ml-1 text-gray-600">· {location.notes}</span>}
               </span>
             )}
-            <span className="sm:ml-auto text-gray-600">{now} Екб</span>
+            <span className="sm:ml-auto"><CurrentTime /></span>
           </div>
         </header>
 

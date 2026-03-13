@@ -6,6 +6,7 @@ import { ForecastHour, WeatherModel } from "./types/weather";
 import ScoreBadge from "./components/ScoreBadge";
 import WindArrow from "./components/WindArrow";
 import ModelSelector from "./components/ModelSelector";
+import CurrentTime from "./components/CurrentTime";
 
 interface LocationDay {
   id: string;
@@ -125,10 +126,6 @@ export default async function HomePage({
     byDay[dateStr] = items;
   }
 
-  const now = new Date().toLocaleTimeString("ru-RU", {
-    hour: "2-digit", minute: "2-digit", timeZone: "Asia/Yekaterinburg",
-  });
-
   return (
     <main className="min-h-screen bg-gray-950 text-white">
       <div className="max-w-6xl mx-auto px-3 sm:px-4 py-5 sm:py-8">
@@ -141,7 +138,7 @@ export default async function HomePage({
               <span className="shrink-0">🪂</span>
               <span className="truncate">Оренбургская область · {LOCATIONS.length} точек</span>
             </div>
-            <div className="text-xs text-gray-600 shrink-0">{now} Екб</div>
+            <CurrentTime />
           </div>
           {/* Title */}
           <h1 className="text-xl sm:text-2xl font-bold text-white leading-tight">Сводка на 7 дней</h1>
