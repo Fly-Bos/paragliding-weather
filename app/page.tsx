@@ -291,7 +291,7 @@ export default async function HomePage({
           </div>
 
           <p className="text-xs text-gray-600">
-            Данные: Open-Meteo · модель ECMWF · прогноз обновляется каждые 30 мин · высота ветра 80м
+            Данные: Open-Meteo · модель {MODEL_LABELS[model]} · прогноз обновляется каждые 30 мин · высота ветра 80м
           </p>
         </section>
 
