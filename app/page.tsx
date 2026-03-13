@@ -48,7 +48,7 @@ function isToday(dateStr: string): boolean {
 
 interface MetarData {
   rawOb: string;
-  obsTime: string;
+  obsTime: number;
   temp: number;
   dewp: number;
   wdir: number | null;
@@ -232,7 +232,7 @@ export default async function HomePage({
 
                     <div className="mt-2 flex justify-between text-xs text-gray-700">
                       <span>aviationweather.gov</span>
-                      <span>{new Date(m.obsTime).toLocaleString("ru-RU", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit", timeZone: "Asia/Yekaterinburg" })} Екб</span>
+                      <span>{new Date(m.obsTime * 1000).toLocaleString("ru-RU", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit", timeZone: "Asia/Yekaterinburg" })} Екб</span>
                     </div>
                   </div>
                 );
