@@ -1,13 +1,12 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import { fetchWeather, getScoreLabel, windDirLabel, MODEL_LABELS } from "./lib/weather";
+import { fetchWeather, windDirLabel, MODEL_LABELS } from "./lib/weather";
 import { LOCATIONS } from "./lib/locations";
 import { ForecastHour, WeatherModel } from "./types/weather";
-import ScoreBadge from "./components/ScoreBadge";
 import WindArrow from "./components/WindArrow";
 import ModelSelector from "./components/ModelSelector";
 import CurrentTime from "./components/CurrentTime";
-import CustomLocations from "./components/CustomLocations";
+import DaysSummary from "./components/DaysSummary";
 
 interface LocationDay {
   id: string;
@@ -34,18 +33,6 @@ function getDayDates(hours: ForecastHour[]): string[] {
   return Array.from(seen).sort();
 }
 
-function formatDayLabel(dateStr: string): string {
-  const d = new Date(dateStr + "T12:00:00");
-  return d.toLocaleDateString("ru-RU", { weekday: "long", day: "numeric", month: "long" });
-}
-
-function isToday(dateStr: string): boolean {
-  const today = new Date().toLocaleDateString("ru-RU", {
-    timeZone: "Asia/Yekaterinburg",
-    year: "numeric", month: "2-digit", day: "2-digit",
-  }).split(".").reverse().join("-");
-  return dateStr === today;
-}
 
 interface MetarData {
   rawOb: string;
@@ -245,81 +232,8 @@ export default async function HomePage({
           );
         })()}
 
-        {/* Custom locations (localStorage) */}
-        <CustomLocations model={model} dates={dates} />
-
-        {/* Days */}
-        {dates.map((dateStr) => {
-          const items = byDay[dateStr] ?? [];
-          const bestScore = items[0]?.hour.flyingScore ?? 0;
-          const { color } = getScoreLabel(bestScore);
-          const today = isToday(dateStr);
-
-          return (
-            <section key={dateStr} className="mb-5 sm:mb-8">
-              <div className="flex items-center gap-2 mb-2">
-                <h2 className={`text-sm font-bold capitalize ${today ? "text-white" : "text-gray-300"}`}>
-                  {formatDayLabel(dateStr)}
-                </h2>
-                {today && (
-                  <span className="text-xs font-normal bg-blue-600 text-white px-2 py-0.5 rounded-full">сегодня</span>
-                )}
-                <span className={`text-xs ${color} ml-auto`}>лучшее: {bestScore}</span>
-              </div>
-
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-1.5 sm:gap-2">
-                {items.slice(0, 10).map(({ id, name, winds, hour }) => {
-                  const matchBorder =
-                    hour.windDirMatch === "perfect" ? "border-green-500/50 bg-green-900/15" :
-                    hour.windDirMatch === "good"    ? "border-lime-500/40 bg-lime-900/10" :
-                    hour.windDirMatch === "off"     ? "border-yellow-500/25 bg-yellow-900/5" :
-                    hour.windDirMatch === "bad"     ? "border-red-500/25 bg-red-900/5" :
-                                                     "border-white/10 bg-white/5";
-                  const dirColor =
-                    hour.windDirMatch === "perfect" ? "text-green-400" :
-                    hour.windDirMatch === "good"    ? "text-lime-400" :
-                    hour.windDirMatch === "off"     ? "text-yellow-400" :
-                    hour.windDirMatch === "bad"     ? "text-red-400" :
-                                                     "text-gray-400";
-
-                  return (
-                    <Link
-                      key={id}
-                      href={`/forecast?loc=${id}`}
-                      className={`rounded-xl border p-1.5 sm:p-3 transition-all active:scale-95 hover:brightness-125 ${matchBorder}`}
-                    >
-                      {/* Name + score */}
-                      <div className="flex items-start justify-between gap-1 mb-1">
-                        <span className="text-xs font-medium text-gray-200 leading-tight line-clamp-1 sm:line-clamp-2">{name}</span>
-                        <ScoreBadge score={hour.flyingScore} compact />
-                      </div>
-
-                      {/* Wind 80m */}
-                      <div className="flex items-center gap-1 mb-1">
-                        <WindArrow degrees={hour.windDir80m} size={12} color="#a78bfa" />
-                        <span className="text-violet-300 font-bold text-sm">{hour.windSpeed80m.toFixed(1)}</span>
-                        <span className="text-gray-500 text-xs">м/с</span>
-                        <span className={`text-xs font-medium ${dirColor}`}>
-                          {windDirLabel(hour.windDir80m)}
-                        </span>
-                      </div>
-
-                      {/* Gusts + temp + time */}
-                      <div className="flex items-center justify-between text-xs text-gray-500">
-                        <span>↑<span className="text-orange-300">{hour.windGusts.toFixed(1)}</span></span>
-                        <span className="text-gray-600">{new Date(hour.time).getHours()}:00</span>
-                        <span className="text-gray-300">{hour.temperature.toFixed(0)}°</span>
-                      </div>
-
-                      {/* Working wind — скрыто на мобиле */}
-                      <div className="hidden sm:block mt-1 text-gray-600 text-xs truncate">{winds}</div>
-                    </Link>
-                  );
-                })}
-              </div>
-            </section>
-          );
-        })}
+        {/* Days — static + custom locations merged and ranked */}
+        <DaysSummary staticByDay={byDay} dates={dates} model={model} />
 
         {/* Scoring explanation */}
         <section className="mt-4 mb-6 bg-white/5 border border-white/10 rounded-xl p-4 sm:p-6 text-sm text-gray-400 space-y-4">
