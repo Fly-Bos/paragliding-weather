@@ -124,11 +124,11 @@ export default async function HomePage({
         <header className="mb-5 sm:mb-8">
           {/* Top row: label + time */}
           <div className="flex items-center justify-between gap-2 mb-1.5">
-            <div className="flex items-center gap-1.5 text-blue-400 text-xs min-w-0">
+            <a href="/locations" className="flex items-center gap-1.5 text-blue-400 text-xs min-w-0 hover:text-blue-300 transition-colors">
               <span className="shrink-0">🪂</span>
               <span className="truncate">Оренбургская область · </span>
               <LocationsCount staticCount={LOCATIONS.length} />
-            </div>
+            </a>
             <CurrentTime />
           </div>
           {/* Title */}

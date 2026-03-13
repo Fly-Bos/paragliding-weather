@@ -98,22 +98,24 @@ export default async function ForecastPage({
           )}
 
           {/* Meta */}
-          <div className="mt-2 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-gray-500">
+          <div className="mt-2 flex flex-wrap gap-x-2 gap-y-0.5 text-xs text-gray-500">
             <a
               href={`https://yandex.ru/maps/?ll=${location.lon},${location.lat}&z=14&l=sat,skl&pt=${location.lon},${location.lat}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="hover:text-blue-400 transition-colors"
+              className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
             >
-              {location.lat.toFixed(4)}°N, {location.lon.toFixed(4)}°E
+              <span>🗺️</span>
+              <span>{location.lat.toFixed(4)}°N, {location.lon.toFixed(4)}°E</span>
             </a>
             <a
               href={`https://www.windy.com/${location.lat.toFixed(3)}/${location.lon.toFixed(3)}/wind?${location.lat.toFixed(3)},${location.lon.toFixed(3)},13`}
               target="_blank"
               rel="noopener noreferrer"
-              className="hover:text-blue-400 transition-colors"
+              className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
             >
-              Windy
+              <span>🌬️</span>
+              <span>Windy</span>
             </a>
             {location.winds !== "–" && (
               <span>
