@@ -221,10 +221,6 @@ export default async function HomePage({
                       </div>
                     </div>
 
-                    {m.wxString && (
-                      <div className="text-xs text-yellow-300 mb-1.5">{m.wxString}</div>
-                    )}
-
                     <details className="group">
                       <summary className="text-xs text-gray-600 cursor-pointer hover:text-gray-400 select-none">
                         METAR ▸
