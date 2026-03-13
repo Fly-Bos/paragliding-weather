@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import { fetchWeather } from "../lib/weather";
+import { fetchWeather, MODEL_LABELS } from "../lib/weather";
 import { findLocation } from "../lib/locations";
 import { ForecastHour, WindHeight, WeatherModel } from "../types/weather";
 import DaySection from "../components/DaySection";
@@ -132,7 +132,7 @@ export default async function ForecastPage({
         ))}
 
         <footer className="text-center text-xs text-gray-700 py-4">
-          open-meteo.com · ECMWF · оценка по 80м · обновление каждые 30 мин
+          open-meteo.com · {MODEL_LABELS[model]} · оценка по 80м · обновление каждые 30 мин
         </footer>
       </div>
     </main>

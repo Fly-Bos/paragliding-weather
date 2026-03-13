@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import { fetchWeather, getScoreLabel, windDirLabel } from "./lib/weather";
+import { fetchWeather, getScoreLabel, windDirLabel, MODEL_LABELS } from "./lib/weather";
 import { LOCATIONS } from "./lib/locations";
 import { ForecastHour, WeatherModel } from "./types/weather";
 import ScoreBadge from "./components/ScoreBadge";
@@ -296,7 +296,7 @@ export default async function HomePage({
         </section>
 
         <footer className="text-center text-xs text-gray-700 py-4">
-          open-meteo.com · ECMWF · обновление каждые 30 мин
+          open-meteo.com · {MODEL_LABELS[model]} · обновление каждые 30 мин
         </footer>
       </div>
     </main>

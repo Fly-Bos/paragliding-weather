@@ -1,6 +1,14 @@
 import { WeatherData, ForecastHour, WindHeight, WeatherModel } from "../types/weather";
 export type { WindHeight, WeatherModel };
 
+export const MODEL_LABELS: Record<WeatherModel, string> = {
+  best_match:    "Авто",
+  ecmwf_ifs025:  "ECMWF",
+  icon_seamless: "ICON",
+  gfs_seamless:  "GFS",
+  gem_seamless:  "GEM",
+};
+
 // Русские обозначения сторон света → градусы
 const DIR_DEG: Record<string, number> = {
   "С": 0, "ССВ": 22.5, "СВ": 45, "ВСВ": 67.5,
