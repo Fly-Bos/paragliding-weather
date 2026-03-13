@@ -15,6 +15,15 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "OrenSoarCast - сводка и прогноз по летным местам Оренбургской области",
   description: "OrenSoarCast - сводка и прогноз по летным местам Оренбургской области",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "OrenSoarCast",
+  },
+  icons: {
+    apple: "/apple-touch-icon.png",
+  },
 };
 
 export default function RootLayout({
@@ -25,6 +34,7 @@ export default function RootLayout({
   return (
     <html lang="ru">
       <head>
+        <meta name="theme-color" content="#030712" />
         <link
           rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block"
