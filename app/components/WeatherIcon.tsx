@@ -32,6 +32,23 @@ function wmoIcon(code: number): { icon: string; color: string } {
   return { icon: "device_thermostat", color: "#6b7280" };
 }
 
+// Converts METAR wx/cloud conditions to a WMO-like code for icon selection
+export function metarToWmoCode(wxString?: string, clouds?: { cover: string; base: number }[]): number {
+  const wx = (wxString ?? "").toUpperCase();
+  if (wx.includes("TS"))                           return 95; // thunderstorm
+  if (wx.includes("SN") || wx.includes("PL") || wx.includes("IC")) return 71; // snow
+  if (wx.includes("SH") && wx.includes("RA"))      return 80; // showers
+  if (wx.includes("RA") || wx.includes("DZ"))      return 61; // rain
+  if (wx.includes("FG"))                           return 45; // fog
+  if (wx.includes("BR") || wx.includes("HZ"))      return 48; // mist/haze
+  const cover = clouds?.[0]?.cover ?? "SKC";
+  if (cover === "SKC" || cover === "CLR" || cover === "CAVOK" || cover === "NSC") return 0;
+  if (cover === "FEW") return 1;
+  if (cover === "SCT") return 2;
+  if (cover === "BKN" || cover === "OVC" || cover === "VV") return 3;
+  return 0;
+}
+
 interface Props {
   code: number;
   size?: "sm" | "md" | "lg";

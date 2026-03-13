@@ -4,6 +4,7 @@ import { fetchWeather, windDirLabel, MODEL_LABELS } from "./lib/weather";
 import { LOCATIONS } from "./lib/locations";
 import { ForecastHour, WeatherModel } from "./types/weather";
 import WindArrow from "./components/WindArrow";
+import WeatherIcon, { metarToWmoCode } from "./components/WeatherIcon";
 import ModelSelector from "./components/ModelSelector";
 import CurrentTime from "./components/CurrentTime";
 import DaysSummary from "./components/DaysSummary";
@@ -163,55 +164,58 @@ export default async function HomePage({
             { id: "UWOR", label: "UWOR Орск" },
           ];
           return (
-            <div className="grid sm:grid-cols-2 gap-3 mb-5 sm:mb-6">
+            <div className="grid sm:grid-cols-2 gap-2 mb-5 sm:mb-6">
               {AIRPORTS.map(({ id, label }) => {
                 const m = metars[id];
                 if (!m) return null;
                 const windMs = (m.wspd * 0.514).toFixed(1);
                 const gustMs = m.wgst ? (m.wgst * 0.514).toFixed(1) : null;
-                const visKm = typeof m.visib === "number" ? (m.visib * 1.609).toFixed(1) : m.visib;
+                const visKm = typeof m.visib === "number"
+                  ? (m.visib >= 6 ? "6+" : (m.visib * 1.609).toFixed(1))
+                  : m.visib;
                 const qnh = m.altim ? Math.round(m.altim * 33.864) : null;
                 const fltColor =
                   m.fltcat === "VFR"  ? "text-green-400" :
                   m.fltcat === "MVFR" ? "text-lime-400" :
                   m.fltcat === "IFR"  ? "text-yellow-400" :
                                         "text-red-400";
+                const obsTime = new Date(m.obsTime * 1000).toLocaleString("ru-RU", {
+                  day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit",
+                  timeZone: "Asia/Yekaterinburg",
+                });
+                const wmoCode = metarToWmoCode(m.wxString, m.clouds);
                 return (
-                  <div key={id} className="bg-white/5 border border-white/10 rounded-xl p-3 sm:p-4">
+                  <div key={id} className="bg-white/5 border border-white/10 rounded-xl p-3">
+                    {/* Header */}
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="text-xs font-semibold text-gray-200">✈ {label} — факт</span>
-                      {m.fltcat && (
-                        <span className={`text-xs font-bold ${fltColor}`}>{m.fltcat}</span>
-                      )}
+                      <WeatherIcon code={wmoCode} size="md" />
+                      <span className="text-xs font-semibold text-gray-200 flex-1">✈ {label}</span>
+                      {m.fltcat && <span className={`text-xs font-bold ${fltColor}`}>{m.fltcat}</span>}
                     </div>
 
-                    <div className="grid grid-cols-2 gap-2 text-xs mb-2">
-                      <div className="bg-white/5 rounded-lg p-2">
-                        <div className="text-gray-500 mb-0.5">Ветер</div>
-                        <div className="flex items-center gap-1">
-                          {m.wdir !== null && <WindArrow degrees={m.wdir} size={13} color="#60a5fa" />}
-                          <span className="text-blue-300 font-bold">{windMs} м/с</span>
-                          {m.wdir !== null && <span className="text-gray-400">{windDirLabel(m.wdir)}</span>}
-                        </div>
-                        {gustMs && <div className="text-orange-300 mt-0.5">↑{gustMs} м/с</div>}
-                      </div>
-
-                      <div className="bg-white/5 rounded-lg p-2">
-                        <div className="text-gray-500 mb-0.5">Темп / Точка росы</div>
-                        <div className="text-gray-200 font-bold">{m.temp}° / {m.dewp}°</div>
-                      </div>
-
-                      <div className="bg-white/5 rounded-lg p-2">
-                        <div className="text-gray-500 mb-0.5">Видимость</div>
-                        <div className="text-gray-200 font-bold">{visKm} км</div>
-                      </div>
-
-                      <div className="bg-white/5 rounded-lg p-2">
-                        <div className="text-gray-500 mb-0.5">QNH</div>
-                        <div className="text-gray-200 font-bold">{qnh} гПа</div>
-                      </div>
+                    {/* Main info row */}
+                    <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs mb-2">
+                      <span className="flex items-center gap-1">
+                        {m.wdir !== null && <WindArrow degrees={m.wdir} size={12} color="#60a5fa" />}
+                        <span className="text-blue-300 font-bold">{windMs}</span>
+                        {gustMs && <span className="text-orange-300">↑{gustMs}</span>}
+                        <span className="text-gray-500">м/с</span>
+                        {m.wdir !== null && <span className="text-gray-400">{windDirLabel(m.wdir)}</span>}
+                      </span>
+                      <span className="text-gray-500">·</span>
+                      <span className="text-gray-300">{m.temp}°/{m.dewp}°</span>
+                      <span className="text-gray-500">·</span>
+                      <span className="text-gray-400">вид {visKm} км</span>
+                      <span className="text-gray-500">·</span>
+                      <span className="text-gray-400">QNH {qnh}</span>
                     </div>
 
+                    {/* wx phenomena */}
+                    {m.wxString && (
+                      <div className="text-xs text-yellow-300 mb-1.5">{m.wxString}</div>
+                    )}
+
+                    {/* Raw METAR */}
                     <details className="group">
                       <summary className="text-xs text-gray-600 cursor-pointer hover:text-gray-400 select-none">
                         METAR ▸
@@ -221,9 +225,9 @@ export default async function HomePage({
                       </div>
                     </details>
 
-                    <div className="mt-2 flex justify-between text-xs text-gray-700">
+                    <div className="mt-1.5 flex justify-between text-xs text-gray-700">
                       <span>aviationweather.gov</span>
-                      <span>{new Date(m.obsTime * 1000).toLocaleString("ru-RU", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit", timeZone: "Asia/Yekaterinburg" })} Екб</span>
+                      <span>{obsTime} Екб</span>
                     </div>
                   </div>
                 );
