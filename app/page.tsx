@@ -137,7 +137,10 @@ export default async function HomePage({
           <div className="flex items-center justify-between gap-2 mb-1.5">
             <div className="flex items-center gap-1.5 text-blue-400 text-xs min-w-0">
               <span className="shrink-0">🪂</span>
-              <span className="truncate">Оренбургская область · {LOCATIONS.length} точек</span>
+              <span className="truncate">Оренбургская область · </span>
+              <Link href="/locations" className="hover:text-blue-300 transition-colors shrink-0">
+                {LOCATIONS.length} точек
+              </Link>
             </div>
             <CurrentTime />
           </div>
