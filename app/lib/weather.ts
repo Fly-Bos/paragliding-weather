@@ -115,34 +115,34 @@ export async function fetchWeather(lat: number, lon: number, workingWinds = "–
 function parseHourly(data: WeatherData, workingWinds: string): ForecastHour[] {
   const h = data.hourly;
   return h.time.map((time, i) => {
-    const windSpeed10m = h.wind_speed_10m[i];
-    const windSpeed80m = h.wind_speed_80m[i];
-    const windDir80m = h.wind_direction_80m[i];
-    const gusts = h.wind_gusts_10m[i];
-    const precipProb = h.precipitation_probability[i];
-    const cloudcover = h.cloudcover[i];
-    const cape = h.cape[i];
+    const windSpeed10m = h.wind_speed_10m?.[i] ?? 0;
+    const windSpeed80m = h.wind_speed_80m?.[i] ?? 0;
+    const windDir80m = h.wind_direction_80m?.[i] ?? 0;
+    const gusts = h.wind_gusts_10m?.[i] ?? 0;
+    const precipProb = h.precipitation_probability?.[i] ?? 0;
+    const cloudcover = h.cloudcover?.[i] ?? 0;
+    const cape = h.cape?.[i] ?? 0;
     // Оценка и направление — всегда по 80м
     const { match: windDirMatch, penalty: windDirPenalty } = calcWindDirMatch(windDir80m, workingWinds);
 
     return {
       time,
-      temperature: h.temperature_2m[i],
+      temperature: h.temperature_2m?.[i] ?? 0,
       windSpeed10m,
       windSpeed80m,
-      windSpeed120m: h.wind_speed_120m[i],
-      windSpeed180m: h.wind_speed_180m[i],
-      windDir10m: h.wind_direction_10m[i],
+      windSpeed120m: h.wind_speed_120m?.[i] ?? 0,
+      windSpeed180m: h.wind_speed_180m?.[i] ?? 0,
+      windDir10m: h.wind_direction_10m?.[i] ?? 0,
       windDir80m,
-      windDir120m: h.wind_direction_120m[i],
-      windDir180m: h.wind_direction_180m[i],
+      windDir120m: h.wind_direction_120m?.[i] ?? 0,
+      windDir180m: h.wind_direction_180m?.[i] ?? 0,
       windGusts: gusts,
       precipProb,
-      precip: h.precipitation[i],
+      precip: h.precipitation?.[i] ?? 0,
       cloudcover,
-      cloudcoverLow: h.cloudcover_low[i],
+      cloudcoverLow: h.cloudcover_low?.[i] ?? 0,
       cape,
-      visibility: h.visibility[i],
+      visibility: h.visibility?.[i] ?? 0,
       windDirMatch,
       flyingScore: calcFlyingScore({
         windSpeed: windSpeed80m,
