@@ -99,7 +99,7 @@ export default async function HomePage() {
                 <span>Оренбургская область · {LOCATIONS.length} точек</span>
               </div>
               <h1 className="text-2xl sm:text-3xl font-bold text-white leading-tight">Сводка на 7 дней</h1>
-              <p className="text-gray-500 text-xs mt-1">в 12:00 · по оценке · ветер 80м</p>
+              <p className="text-gray-500 text-xs mt-1">лучший час 10:00–16:00 · по оценке · ветер 80м</p>
             </div>
             <div className="flex flex-col items-end gap-1.5 shrink-0">
               <div className="text-right text-xs text-gray-600">{now} Екб</div>
