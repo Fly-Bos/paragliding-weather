@@ -1,9 +1,11 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { fetchWeather, getScoreLabel, windDirLabel } from "./lib/weather";
 import { LOCATIONS } from "./lib/locations";
-import { ForecastHour } from "./types/weather";
+import { ForecastHour, WeatherModel } from "./types/weather";
 import ScoreBadge from "./components/ScoreBadge";
 import WindArrow from "./components/WindArrow";
+import ModelSelector from "./components/ModelSelector";
 
 interface LocationDay {
   id: string;
@@ -43,13 +45,19 @@ function isToday(dateStr: string): boolean {
   return dateStr === today;
 }
 
-async function fetchBatched(batchSize = 5, delayMs = 300) {
+const VALID_MODELS: WeatherModel[] = ["best_match", "ecmwf_ifs025", "icon_seamless", "gfs_seamless", "gem_seamless"];
+function parseModel(raw?: string): WeatherModel {
+  if (VALID_MODELS.includes(raw as WeatherModel)) return raw as WeatherModel;
+  return "best_match";
+}
+
+async function fetchBatched(model: WeatherModel, batchSize = 5, delayMs = 300) {
   const results = [];
   for (let i = 0; i < LOCATIONS.length; i += batchSize) {
     const batch = LOCATIONS.slice(i, i + batchSize);
     const batchResults = await Promise.all(
       batch.map((loc) =>
-        fetchWeather(loc.lat, loc.lon, loc.winds)
+        fetchWeather(loc.lat, loc.lon, loc.winds, model)
           .then((hours) => ({ loc, hours }))
           .catch(() => null)
       )
@@ -62,8 +70,14 @@ async function fetchBatched(batchSize = 5, delayMs = 300) {
   return results;
 }
 
-export default async function HomePage() {
-  const results = await fetchBatched();
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ model?: string }>;
+}) {
+  const params = await searchParams;
+  const model = parseModel(params.model);
+  const results = await fetchBatched(model);
 
   const firstResult = results.find((r) => r !== null);
   if (!firstResult) return <div className="text-white p-8">Ошибка загрузки данных</div>;
@@ -103,6 +117,9 @@ export default async function HomePage() {
             </div>
             <div className="flex flex-col items-end gap-1.5 shrink-0">
               <div className="text-right text-xs text-gray-600">{now} Екб</div>
+              <Suspense>
+                <ModelSelector current={model} />
+              </Suspense>
             </div>
           </div>
         </header>
