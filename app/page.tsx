@@ -233,6 +233,11 @@ export default async function HomePage({
                         {m.rawOb}
                       </div>
                     </details>
+
+                    <div className="mt-2 flex justify-between text-xs text-gray-700">
+                      <span>aviationweather.gov</span>
+                      <span>{new Date(m.obsTime).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Yekaterinburg" })} Екб</span>
+                    </div>
                   </div>
                 );
               })}
