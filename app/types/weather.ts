@@ -1,4 +1,5 @@
 export type WindHeight = 10 | 80 | 120 | 180;
+export type WeatherModel = "best_match" | "ecmwf_ifs025" | "icon_seamless" | "gfs_seamless" | "gem_seamless";
 
 export interface HourlyWeather {
   time: string[];

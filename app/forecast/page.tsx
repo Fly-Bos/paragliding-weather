@@ -2,11 +2,12 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { fetchWeather } from "../lib/weather";
 import { findLocation } from "../lib/locations";
-import { ForecastHour, WindHeight } from "../types/weather";
+import { ForecastHour, WindHeight, WeatherModel } from "../types/weather";
 import DaySection from "../components/DaySection";
 import WindChart from "../components/WindChart";
 import LocationSelector from "../components/LocationSelector";
 import HeightSelector from "../components/HeightSelector";
+import ModelSelector from "../components/ModelSelector";
 
 function groupByDay(hours: ForecastHour[]): Record<string, ForecastHour[]> {
   const groups: Record<string, ForecastHour[]> = {};
@@ -24,15 +25,22 @@ function parseHeight(raw?: string): WindHeight {
   return 80;
 }
 
+const VALID_MODELS: WeatherModel[] = ["best_match", "ecmwf_ifs025", "icon_seamless", "gfs_seamless", "gem_seamless"];
+function parseModel(raw?: string): WeatherModel {
+  if (VALID_MODELS.includes(raw as WeatherModel)) return raw as WeatherModel;
+  return "best_match";
+}
+
 export default async function ForecastPage({
   searchParams,
 }: {
-  searchParams: Promise<{ loc?: string; height?: string }>;
+  searchParams: Promise<{ loc?: string; height?: string; model?: string }>;
 }) {
   const params = await searchParams;
   const location = findLocation(params.loc ?? "maryevka");
   const height = parseHeight(params.height);
-  const hours = await fetchWeather(location.lat, location.lon, location.winds);
+  const model = parseModel(params.model);
+  const hours = await fetchWeather(location.lat, location.lon, location.winds, model);
   const byDay = groupByDay(hours);
 
   const now = new Date().toLocaleTimeString("ru-RU", {
@@ -65,6 +73,9 @@ export default async function ForecastPage({
             </Suspense>
             <Suspense>
               <HeightSelector current={height} />
+            </Suspense>
+            <Suspense>
+              <ModelSelector current={model} />
             </Suspense>
           </div>
 

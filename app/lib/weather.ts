@@ -1,5 +1,5 @@
-import { WeatherData, ForecastHour, WindHeight } from "../types/weather";
-export type { WindHeight };
+import { WeatherData, ForecastHour, WindHeight, WeatherModel } from "../types/weather";
+export type { WindHeight, WeatherModel };
 
 // Русские обозначения сторон света → градусы
 const DIR_DEG: Record<string, number> = {
@@ -75,10 +75,11 @@ function calcWindDirMatch(currentDeg: number, workingWinds: string): { match: Wi
   return { match, penalty };
 }
 
-export async function fetchWeather(lat: number, lon: number, workingWinds = "–"): Promise<ForecastHour[]> {
+export async function fetchWeather(lat: number, lon: number, workingWinds = "–", model: WeatherModel = "best_match"): Promise<ForecastHour[]> {
   const url = new URL("https://api.open-meteo.com/v1/forecast");
   url.searchParams.set("latitude", String(lat));
   url.searchParams.set("longitude", String(lon));
+  if (model !== "best_match") url.searchParams.set("models", model);
   url.searchParams.set(
     "hourly",
     [
