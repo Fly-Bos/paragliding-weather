@@ -290,6 +290,26 @@ export default async function HomePage({
             </div>
           </div>
 
+          {/* Models */}
+          <div>
+            <div className="text-xs font-semibold text-gray-300 mb-2">Модели прогноза</div>
+            <div className="grid sm:grid-cols-2 gap-1 text-xs">
+              {[
+                { id: "best_match",    name: "Авто",  res: "—",      days: "7",  desc: "Open-Meteo выбирает лучшую модель автоматически" },
+                { id: "ecmwf_ifs025",  name: "ECMWF", res: "~25 км", days: "10", desc: "Европейский центр, считается самым точным глобально" },
+                { id: "icon_seamless", name: "ICON",  res: "~11 км", days: "7",  desc: "Немецкий DWD, высокое разрешение, хорош для России" },
+                { id: "gfs_seamless",  name: "GFS",   res: "~25 км", days: "16", desc: "США NOAA, самый длинный прогноз — 16 дней" },
+                { id: "gem_seamless",  name: "GEM",   res: "~15 км", days: "10", desc: "Канадская CMC, хорошая точность для средних широт" },
+              ].map((m) => (
+                <div key={m.id} className={`flex gap-2 rounded p-1.5 ${model === m.id ? "bg-violet-900/20 border border-violet-500/30" : "bg-white/5"}`}>
+                  <span className={`font-semibold w-10 shrink-0 ${model === m.id ? "text-violet-300" : "text-gray-300"}`}>{m.name}</span>
+                  <span className="text-gray-600 w-12 shrink-0">{m.res} · {m.days}д</span>
+                  <span className="text-gray-500">{m.desc}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
           <p className="text-xs text-gray-600">
             Данные: Open-Meteo · модель {MODEL_LABELS[model]} · прогноз обновляется каждые 30 мин · высота ветра 80м
           </p>
