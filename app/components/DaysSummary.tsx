@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { loadCustomLocations, CustomLocation } from "../locations/AddLocationForm";
 import { fetchWeather } from "../lib/weather";
 import { ForecastHour, WeatherModel } from "../types/weather";
 import ScoreBadge from "./ScoreBadge";
 import WindArrow from "./WindArrow";
 import WeatherIcon from "./WeatherIcon";
+import LocationPopup from "./LocationPopup";
 
 function windDirLabel(deg: number): string {
   const dirs = ["С", "СВ", "В", "ЮВ", "Ю", "ЮЗ", "З", "СЗ"];
@@ -47,6 +47,8 @@ function getBestDayHour(hours: ForecastHour[], dateStr: string): ForecastHour | 
 export interface StaticLocationDay {
   id: string;
   name: string;
+  lat: number;
+  lon: number;
   winds: string;
   hour: ForecastHour;
 }
@@ -54,9 +56,10 @@ export interface StaticLocationDay {
 interface AnyLocationDay {
   id: string;
   name: string;
+  lat: number;
+  lon: number;
   winds: string;
   hour: ForecastHour;
-  href: string;
 }
 
 interface Props {
@@ -65,9 +68,19 @@ interface Props {
   model: WeatherModel;
 }
 
+interface PopupState {
+  name: string;
+  lat: number;
+  lon: number;
+  winds: string;
+  dateStr: string;
+  locationId?: string;
+}
+
 export default function DaysSummary({ staticByDay, dates, model }: Props) {
   const [customByDay, setCustomByDay] = useState<Record<string, AnyLocationDay[]>>({});
   const [customLoaded, setCustomLoaded] = useState(false);
+  const [popup, setPopup] = useState<PopupState | null>(null);
 
   useEffect(() => {
     const locs: CustomLocation[] = loadCustomLocations();
@@ -90,9 +103,10 @@ export default function DaysSummary({ staticByDay, dates, model }: Props) {
           map[dateStr].push({
             id: r.loc.id,
             name: r.loc.name,
+            lat: r.loc.lat,
+            lon: r.loc.lon,
             winds: r.loc.winds,
             hour,
-            href: `/forecast?lat=${r.loc.lat}&lon=${r.loc.lon}&winds=${encodeURIComponent(r.loc.winds)}&name=${encodeURIComponent(r.loc.name)}`,
           });
         }
       }
@@ -104,10 +118,7 @@ export default function DaysSummary({ staticByDay, dates, model }: Props) {
   return (
     <>
       {dates.map((dateStr) => {
-        const staticItems: AnyLocationDay[] = (staticByDay[dateStr] ?? []).map((item) => ({
-          ...item,
-          href: `/forecast?loc=${item.id}`,
-        }));
+          const staticItems: AnyLocationDay[] = staticByDay[dateStr] ?? [];
         const customItems: AnyLocationDay[] = customByDay[dateStr] ?? [];
 
         const allItems = [...staticItems, ...customItems]
@@ -134,7 +145,7 @@ export default function DaysSummary({ staticByDay, dates, model }: Props) {
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-1.5 sm:gap-2">
-              {allItems.map(({ id, name, winds, hour, href }) => {
+              {allItems.map(({ id, name, lat, lon, winds, hour }) => {
                 const matchBorder =
                   hour.windDirMatch === "perfect" ? "border-green-500/50 bg-green-900/15" :
                   hour.windDirMatch === "good"    ? "border-lime-500/40 bg-lime-900/10" :
@@ -149,10 +160,10 @@ export default function DaysSummary({ staticByDay, dates, model }: Props) {
                                                     "text-gray-400";
 
                 return (
-                  <Link
+                  <button
                     key={id + dateStr}
-                    href={href}
-                    className={`rounded-xl border p-1.5 sm:p-3 transition-all active:scale-95 hover:brightness-125 ${matchBorder}`}
+                    onClick={() => setPopup({ name, lat, lon, winds, dateStr, locationId: id })}
+                    className={`w-full text-left rounded-xl border p-1.5 sm:p-3 transition-all active:scale-95 hover:brightness-125 ${matchBorder}`}
                   >
                     <div className="flex items-start justify-between gap-1 mb-1">
                       <span className="text-xs font-medium text-gray-200 leading-tight line-clamp-1 sm:line-clamp-2">{name}</span>
@@ -173,13 +184,26 @@ export default function DaysSummary({ staticByDay, dates, model }: Props) {
                       <span className="text-gray-300">{hour.temperature.toFixed(0)}°</span>
                     </div>
                     <div className="hidden sm:block mt-1 text-gray-600 text-xs truncate">{winds}</div>
-                  </Link>
+                  </button>
                 );
               })}
             </div>
           </section>
         );
       })}
+
+      {popup && (
+        <LocationPopup
+          name={popup.name}
+          lat={popup.lat}
+          lon={popup.lon}
+          winds={popup.winds}
+          dateStr={popup.dateStr}
+          model={model}
+          locationId={popup.locationId}
+          onClose={() => setPopup(null)}
+        />
+      )}
     </>
   );
 }

@@ -12,6 +12,8 @@ import LocationsCount from "./components/LocationsCount";
 interface LocationDay {
   id: string;
   name: string;
+  lat: number;
+  lon: number;
   winds: string;
   hour: ForecastHour;
 }
@@ -110,7 +112,7 @@ export default async function HomePage({
       if (!result) continue;
       const hour = getBestDayHour(result.hours, dateStr);
       if (!hour) continue;
-      items.push({ id: result.loc.id, name: result.loc.name, winds: result.loc.winds, hour });
+      items.push({ id: result.loc.id, name: result.loc.name, lat: result.loc.lat, lon: result.loc.lon, winds: result.loc.winds, hour });
     }
     items.sort((a, b) => b.hour.flyingScore - a.hour.flyingScore);
     byDay[dateStr] = items;
