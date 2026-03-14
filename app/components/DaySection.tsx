@@ -45,6 +45,7 @@ export default function DaySection({ date, hours, height }: Props) {
               <th className="py-2 px-3 text-center">Дождь</th>
               <th className="py-2 px-3 text-center">Облака</th>
               <th className="py-2 px-3 text-center">CAPE</th>
+              <th className="py-2 px-3 text-center">Кромка</th>
             </tr>
           </thead>
           <tbody>

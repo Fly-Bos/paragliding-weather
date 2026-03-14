@@ -183,6 +183,12 @@ export default function DaysSummary({ staticByDay, dates, model }: Props) {
                       </span>
                       <span className="text-gray-300">{hour.temperature.toFixed(0)}°</span>
                     </div>
+                    <div className={`mt-0.5 text-xs font-mono ${
+                      hour.cloudBase < 500  ? "text-red-400" :
+                      hour.cloudBase < 800  ? "text-yellow-400" :
+                      hour.cloudBase < 1500 ? "text-lime-400" :
+                                              "text-green-400"
+                    }`}>☁ {hour.cloudBase}м</div>
                     <div className="hidden sm:block mt-1 text-gray-600 text-xs truncate">{winds}</div>
                   </button>
                 );

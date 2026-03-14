@@ -15,6 +15,7 @@ export interface HourlyWeather {
   wind_direction_120m: number[];
   wind_direction_180m: number[];
   wind_gusts_10m: number[];
+  dew_point_2m: number[];
   precipitation_probability: number[];
   precipitation: number[];
   cloudcover: number[];
@@ -51,6 +52,7 @@ export interface ForecastHour {
   cape: number;
   visibility: number;
   flyingScore: number;
+  cloudBase: number;
   windDirMatch: "perfect" | "good" | "off" | "bad" | "any";
   weatherCode: number;
 }

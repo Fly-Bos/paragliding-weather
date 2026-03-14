@@ -109,6 +109,7 @@ export default function LocationPopup({ name, lat, lon, winds, dateStr, model, l
                   <th className="text-center pb-1.5 font-normal">Ветер 80м</th>
                   <th className="text-right pb-1.5 font-normal">Порывы</th>
                   <th className="text-right pb-1.5 font-normal">Темп</th>
+                  <th className="text-right pb-1.5 font-normal">Кромка</th>
                 </tr>
               </thead>
               <tbody>
@@ -136,6 +137,12 @@ export default function LocationPopup({ name, lat, lon, winds, dateStr, model, l
                       </td>
                       <td className="py-1.5 text-right text-orange-300">↑{h.windGusts.toFixed(1)}</td>
                       <td className="py-1.5 text-right text-gray-300">{h.temperature.toFixed(0)}°</td>
+                      <td className={`py-1.5 text-right font-mono ${
+                        h.cloudBase < 500  ? "text-red-400" :
+                        h.cloudBase < 800  ? "text-yellow-400" :
+                        h.cloudBase < 1500 ? "text-lime-400" :
+                                             "text-green-400"
+                      }`}>{h.cloudBase}м</td>
                     </tr>
                   );
                 })}

@@ -103,6 +103,7 @@ export async function fetchWeather(lat: number, lon: number, workingWinds = "–
       "wind_direction_120m",
       "wind_direction_180m",
       "wind_gusts_10m",
+      "dew_point_2m",
       "precipitation_probability",
       "precipitation",
       "cloudcover",
@@ -134,12 +135,16 @@ function parseHourly(data: WeatherData, workingWinds: string): ForecastHour[] {
     const precipProb = h.precipitation_probability?.[i] ?? 0;
     const cloudcover = h.cloudcover?.[i] ?? 0;
     const cape = h.cape?.[i] ?? 0;
+    const temp = h.temperature_2m?.[i] ?? 0;
+    const dewPoint = h.dew_point_2m?.[i] ?? temp;
+    // Высота нижней кромки облаков (LCL): (T - Td) × 125 метров
+    const cloudBase = Math.round(Math.max(0, (temp - dewPoint) * 125));
     // Оценка и направление — всегда по 80м
     const { match: windDirMatch, penalty: windDirPenalty } = calcWindDirMatch(windDir80m, workingWinds);
 
     return {
       time,
-      temperature: h.temperature_2m?.[i] ?? 0,
+      temperature: temp,
       windSpeed10m,
       windSpeed80m,
       windSpeed120m: h.wind_speed_120m?.[i] ?? 0,
@@ -156,6 +161,7 @@ function parseHourly(data: WeatherData, workingWinds: string): ForecastHour[] {
       cape,
       visibility: h.visibility?.[i] ?? 0,
       weatherCode: h.weather_code?.[i] ?? 0,
+      cloudBase,
       windDirMatch,
       flyingScore: calcFlyingScore({
         windSpeed: windSpeed80m,
