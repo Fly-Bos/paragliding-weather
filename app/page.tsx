@@ -162,7 +162,7 @@ export default async function HomePage({
             { id: "UWOR", label: "UWOR Орск" },
           ];
           return (
-            <div className="grid sm:grid-cols-2 gap-2 mb-5 sm:mb-6">
+            <div className="grid grid-cols-2 gap-2 mb-5 sm:mb-6">
               {AIRPORTS.map(({ id, label }) => {
                 const m = metars[id];
                 if (!m) return null;
@@ -208,20 +208,6 @@ export default async function HomePage({
                       <span className="text-gray-400">QNH {qnh}</span>
                     </div>
 
-                    {/* wx phenomena */}
-                    {m.wxString && (
-                      <div className="text-xs text-yellow-300 mb-1.5">{m.wxString}</div>
-                    )}
-
-                    {/* Raw METAR */}
-                    <details className="group">
-                      <summary className="text-xs text-gray-600 cursor-pointer hover:text-gray-400 select-none">
-                        METAR ▸
-                      </summary>
-                      <div className="mt-1 font-mono text-xs text-gray-400 bg-black/30 rounded p-2 break-all">
-                        {m.rawOb}
-                      </div>
-                    </details>
 
                     <div className="mt-1.5 flex justify-between text-xs text-gray-700">
                       <span>aviationweather.gov</span>
