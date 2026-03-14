@@ -1,5 +1,13 @@
-import { WeatherData, ForecastHour, WindHeight } from "../types/weather";
-export type { WindHeight };
+import { WeatherData, ForecastHour, WindHeight, WeatherModel } from "../types/weather";
+export type { WindHeight, WeatherModel };
+
+export const MODEL_LABELS: Record<WeatherModel, string> = {
+  best_match:    "Авто",
+  ecmwf_ifs025:  "ECMWF",
+  icon_seamless: "ICON",
+  gfs_seamless:  "GFS",
+  gem_seamless:  "GEM",
+};
 
 // Русские обозначения сторон света → градусы
 const DIR_DEG: Record<string, number> = {
@@ -68,27 +76,30 @@ function calcWindDirMatch(currentDeg: number, workingWinds: string): { match: Wi
 
   let match: WindDirMatch;
   if (diff <= 15)      match = "perfect";
-  else if (diff <= 30) match = "good";
+  else if (diff <= 22) match = "good";
   else if (diff <= 45) match = "off";
   else                 match = "bad";
 
   return { match, penalty };
 }
 
-export async function fetchWeather(lat: number, lon: number, workingWinds = "–"): Promise<ForecastHour[]> {
+export async function fetchWeather(lat: number, lon: number, workingWinds = "–", model: WeatherModel = "best_match"): Promise<ForecastHour[]> {
   const url = new URL("https://api.open-meteo.com/v1/forecast");
   url.searchParams.set("latitude", String(lat));
   url.searchParams.set("longitude", String(lon));
+  if (model !== "best_match") url.searchParams.set("models", model);
   url.searchParams.set(
     "hourly",
     [
       "temperature_2m",
       "wind_speed_10m",
       "wind_speed_80m",
+      "wind_speed_100m",
       "wind_speed_120m",
       "wind_speed_180m",
       "wind_direction_10m",
       "wind_direction_80m",
+      "wind_direction_100m",
       "wind_direction_120m",
       "wind_direction_180m",
       "wind_gusts_10m",
@@ -98,6 +109,7 @@ export async function fetchWeather(lat: number, lon: number, workingWinds = "–
       "cloudcover_low",
       "cape",
       "visibility",
+      "weather_code",
     ].join(",")
   );
   url.searchParams.set("wind_speed_unit", "ms");
@@ -114,34 +126,36 @@ export async function fetchWeather(lat: number, lon: number, workingWinds = "–
 function parseHourly(data: WeatherData, workingWinds: string): ForecastHour[] {
   const h = data.hourly;
   return h.time.map((time, i) => {
-    const windSpeed10m = h.wind_speed_10m[i];
-    const windSpeed80m = h.wind_speed_80m[i];
-    const windDir80m = h.wind_direction_80m[i];
-    const gusts = h.wind_gusts_10m[i];
-    const precipProb = h.precipitation_probability[i];
-    const cloudcover = h.cloudcover[i];
-    const cape = h.cape[i];
+    const windSpeed10m = h.wind_speed_10m?.[i] ?? 0;
+    // ECMWF не имеет 80м, используем 100м как фоллбэк
+    const windSpeed80m = h.wind_speed_80m?.[i] ?? h.wind_speed_100m?.[i] ?? 0;
+    const windDir80m = h.wind_direction_80m?.[i] ?? h.wind_direction_100m?.[i] ?? 0;
+    const gusts = h.wind_gusts_10m?.[i] ?? 0;
+    const precipProb = h.precipitation_probability?.[i] ?? 0;
+    const cloudcover = h.cloudcover?.[i] ?? 0;
+    const cape = h.cape?.[i] ?? 0;
     // Оценка и направление — всегда по 80м
     const { match: windDirMatch, penalty: windDirPenalty } = calcWindDirMatch(windDir80m, workingWinds);
 
     return {
       time,
-      temperature: h.temperature_2m[i],
+      temperature: h.temperature_2m?.[i] ?? 0,
       windSpeed10m,
       windSpeed80m,
-      windSpeed120m: h.wind_speed_120m[i],
-      windSpeed180m: h.wind_speed_180m[i],
-      windDir10m: h.wind_direction_10m[i],
+      windSpeed120m: h.wind_speed_120m?.[i] ?? 0,
+      windSpeed180m: h.wind_speed_180m?.[i] ?? 0,
+      windDir10m: h.wind_direction_10m?.[i] ?? 0,
       windDir80m,
-      windDir120m: h.wind_direction_120m[i],
-      windDir180m: h.wind_direction_180m[i],
+      windDir120m: h.wind_direction_120m?.[i] ?? 0,
+      windDir180m: h.wind_direction_180m?.[i] ?? 0,
       windGusts: gusts,
       precipProb,
-      precip: h.precipitation[i],
+      precip: h.precipitation?.[i] ?? 0,
       cloudcover,
-      cloudcoverLow: h.cloudcover_low[i],
+      cloudcoverLow: h.cloudcover_low?.[i] ?? 0,
       cape,
-      visibility: h.visibility[i],
+      visibility: h.visibility?.[i] ?? 0,
+      weatherCode: h.weather_code?.[i] ?? 0,
       windDirMatch,
       flyingScore: calcFlyingScore({
         windSpeed: windSpeed80m,
