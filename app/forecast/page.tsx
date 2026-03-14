@@ -1,12 +1,14 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import { fetchWeather } from "../lib/weather";
+import { fetchWeather, MODEL_LABELS } from "../lib/weather";
 import { findLocation } from "../lib/locations";
-import { ForecastHour, WindHeight } from "../types/weather";
+import { ForecastHour, WindHeight, WeatherModel } from "../types/weather";
 import DaySection from "../components/DaySection";
 import WindChart from "../components/WindChart";
 import LocationSelector from "../components/LocationSelector";
 import HeightSelector from "../components/HeightSelector";
+import ModelSelector from "../components/ModelSelector";
+import CurrentTime from "../components/CurrentTime";
 
 function groupByDay(hours: ForecastHour[]): Record<string, ForecastHour[]> {
   const groups: Record<string, ForecastHour[]> = {};
@@ -24,22 +26,32 @@ function parseHeight(raw?: string): WindHeight {
   return 80;
 }
 
+const VALID_MODELS: WeatherModel[] = ["best_match", "ecmwf_ifs025", "icon_seamless", "gfs_seamless", "gem_seamless"];
+function parseModel(raw?: string): WeatherModel {
+  if (VALID_MODELS.includes(raw as WeatherModel)) return raw as WeatherModel;
+  return "best_match";
+}
+
 export default async function ForecastPage({
   searchParams,
 }: {
-  searchParams: Promise<{ loc?: string; height?: string }>;
+  searchParams: Promise<{ loc?: string; height?: string; model?: string; lat?: string; lon?: string; winds?: string; name?: string }>;
 }) {
   const params = await searchParams;
-  const location = findLocation(params.loc ?? "maryevka");
   const height = parseHeight(params.height);
-  const hours = await fetchWeather(location.lat, location.lon, location.winds);
-  const byDay = groupByDay(hours);
+  const model = parseModel(params.model);
 
-  const now = new Date().toLocaleTimeString("ru-RU", {
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZone: "Asia/Yekaterinburg",
-  });
+  // Кастомная локация передаётся через lat/lon/winds/name
+  const customLat = parseFloat(params.lat ?? "");
+  const customLon = parseFloat(params.lon ?? "");
+  const isCustom = !isNaN(customLat) && !isNaN(customLon);
+
+  const location = isCustom
+    ? { id: "custom", name: params.name ?? "Локация", lat: customLat, lon: customLon, winds: params.winds ?? "–", notes: undefined }
+    : findLocation(params.loc ?? "maryevka");
+
+  const hours = await fetchWeather(location.lat, location.lon, location.winds, model);
+  const byDay = groupByDay(hours);
 
   return (
     <main className="min-h-screen bg-gray-950 text-white">
@@ -58,25 +70,52 @@ export default async function ForecastPage({
             <h1 className="text-xl sm:text-3xl font-bold text-white truncate">{location.name}</h1>
           </div>
 
-          {/* Controls */}
-          <div className="flex flex-wrap items-center gap-2">
-            <Suspense>
-              <LocationSelector current={location} />
-            </Suspense>
-            <Suspense>
-              <HeightSelector current={height} />
-            </Suspense>
-          </div>
+          {/* Controls — только для стандартных локаций */}
+          {!isCustom && (
+            <div className="flex flex-col gap-2">
+              <Suspense>
+                <LocationSelector current={location} />
+              </Suspense>
+              <div className="flex flex-wrap gap-2">
+                <Suspense>
+                  <HeightSelector current={height} />
+                </Suspense>
+                <Suspense>
+                  <ModelSelector current={model} />
+                </Suspense>
+              </div>
+            </div>
+          )}
+          {isCustom && (
+            <div className="flex flex-wrap gap-2">
+              <Suspense>
+                <HeightSelector current={height} />
+              </Suspense>
+              <Suspense>
+                <ModelSelector current={model} />
+              </Suspense>
+            </div>
+          )}
 
           {/* Meta */}
-          <div className="mt-2 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-gray-500">
+          <div className="mt-2 flex flex-wrap gap-x-2 gap-y-0.5 text-xs text-gray-500">
             <a
               href={`https://yandex.ru/maps/?ll=${location.lon},${location.lat}&z=14&l=sat,skl&pt=${location.lon},${location.lat}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="hover:text-blue-400 transition-colors"
+              className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
             >
-              {location.lat.toFixed(4)}°N, {location.lon.toFixed(4)}°E
+              <span>🗺️</span>
+              <span>{location.lat.toFixed(4)}°N, {location.lon.toFixed(4)}°E</span>
+            </a>
+            <a
+              href={`https://www.windy.com/${location.lat.toFixed(3)}/${location.lon.toFixed(3)}/wind?${location.lat.toFixed(3)},${location.lon.toFixed(3)},13`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
+            >
+              <span>🌬️</span>
+              <span>Windy</span>
             </a>
             {location.winds !== "–" && (
               <span>
@@ -84,7 +123,7 @@ export default async function ForecastPage({
                 {location.notes && <span className="ml-1 text-gray-600">· {location.notes}</span>}
               </span>
             )}
-            <span className="sm:ml-auto text-gray-600">{now} Екб</span>
+            <span className="sm:ml-auto"><CurrentTime /></span>
           </div>
         </header>
 
@@ -121,7 +160,7 @@ export default async function ForecastPage({
         ))}
 
         <footer className="text-center text-xs text-gray-700 py-4">
-          open-meteo.com · ECMWF · оценка по 80м · обновление каждые 30 мин
+          open-meteo.com · {MODEL_LABELS[model]} · оценка по 80м · обновление каждые 30 мин
         </footer>
       </div>
     </main>
