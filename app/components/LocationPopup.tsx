@@ -59,11 +59,12 @@ export default function LocationPopup({ name, lat, lon, winds, dateStr, model, l
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm px-3 pb-4 sm:pb-0"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm sm:px-3"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-sm bg-gray-900 border border-white/10 rounded-2xl overflow-hidden"
+        className="w-full sm:max-w-sm bg-gray-900 border-t sm:border border-white/10 sm:rounded-2xl overflow-hidden flex flex-col"
+        style={{ maxHeight: "90dvh" }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -89,7 +90,7 @@ export default function LocationPopup({ name, lat, lon, winds, dateStr, model, l
         </div>
 
         {/* Body */}
-        <div className="px-3 py-2 max-h-80 overflow-y-auto">
+        <div className="px-3 py-2 overflow-y-auto flex-1">
           {error && (
             <div className="text-center text-red-400 text-sm py-6">Ошибка загрузки</div>
           )}
