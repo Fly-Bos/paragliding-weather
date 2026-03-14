@@ -38,11 +38,7 @@ export default function LocationPopup({ name, lat, lon, winds, dateStr, model, l
     fetch(`/api/weather?${params}`)
       .then((r) => r.json())
       .then((data: ForecastHour[]) => {
-        setHours(data.filter((h) => {
-          if (!h.time.startsWith(dateStr)) return false;
-          const hr = new Date(h.time).getHours();
-          return hr >= 10 && hr <= 20;
-        }));
+        setHours(data.filter((h) => h.time.startsWith(dateStr)));
       })
       .catch(() => setError(true));
   }, [lat, lon, winds, dateStr, model]);
