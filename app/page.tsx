@@ -209,10 +209,7 @@ export default async function HomePage({
                     </div>
 
 
-                    <div className="mt-1.5 flex justify-between text-xs text-gray-700">
-                      <span>aviationweather.gov</span>
-                      <span>{obsTime} Екб</span>
-                    </div>
+                    <div className="mt-1.5 text-xs text-gray-700 text-right">{obsTime} Екб</div>
                   </div>
                 );
               })}
