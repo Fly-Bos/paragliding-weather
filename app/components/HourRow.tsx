@@ -131,21 +131,8 @@ export default function HourRow({ hour, height }: Props) {
       </td>
 
       {/* Cloud base */}
-      <td className="py-2 px-3 text-sm text-center font-mono">
-        <span
-          className={
-            hour.cloudBase < 500
-              ? "text-red-400 font-bold"
-              : hour.cloudBase < 800
-              ? "text-yellow-400"
-              : hour.cloudBase < 1500
-              ? "text-lime-400"
-              : "text-green-400"
-          }
-          title="Расчётная высота нижней кромки облаков (LCL)"
-        >
-          {hour.cloudBase}м
-        </span>
+      <td className="py-2 px-3 text-sm text-center font-mono text-gray-400" title="Расчётная высота нижней кромки облаков (LCL)">
+        {hour.cloudBase}м
       </td>
     </tr>
   );

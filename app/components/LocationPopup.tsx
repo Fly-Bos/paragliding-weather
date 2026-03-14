@@ -34,21 +34,15 @@ export default function LocationPopup({ name, lat, lon, winds, dateStr, model, l
   useEffect(() => {
     setHours(null);
     setError(false);
-    const params = new URLSearchParams({
-      lat: String(lat),
-      lon: String(lon),
-      winds,
-      model,
-    });
+    const params = new URLSearchParams({ lat: String(lat), lon: String(lon), winds, model });
     fetch(`/api/weather?${params}`)
       .then((r) => r.json())
       .then((data: ForecastHour[]) => {
-        const dayHours = data.filter((h) => {
+        setHours(data.filter((h) => {
           if (!h.time.startsWith(dateStr)) return false;
           const hr = new Date(h.time).getHours();
           return hr >= 10 && hr <= 20;
-        });
-        setHours(dayHours);
+        }));
       })
       .catch(() => setError(true));
   }, [lat, lon, winds, dateStr, model]);
@@ -56,6 +50,9 @@ export default function LocationPopup({ name, lat, lon, winds, dateStr, model, l
   const forecastHref = locationId
     ? `/forecast?loc=${locationId}&model=${model}`
     : `/forecast?lat=${lat}&lon=${lon}&winds=${encodeURIComponent(winds)}&name=${encodeURIComponent(name)}&model=${model}`;
+
+  const yandexHref = `https://yandex.ru/maps/?pt=${lon},${lat}&z=14&l=sat`;
+  const windyHref = `https://www.windy.com/?${lat},${lon},12`;
 
   return (
     <div
@@ -89,6 +86,21 @@ export default function LocationPopup({ name, lat, lon, winds, dateStr, model, l
           </div>
         </div>
 
+        {/* Location info */}
+        <div className="px-4 py-2 border-b border-white/5 flex items-center justify-between">
+          <div className="text-xs text-gray-500">
+            {winds !== "–" && <span>Ветер: <span className="text-gray-300">{winds}</span></span>}
+          </div>
+          <div className="flex items-center gap-3 text-xs">
+            <a href={yandexHref} target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-gray-300 transition-colors">
+              Яндекс.Карты
+            </a>
+            <a href={windyHref} target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-gray-300 transition-colors">
+              Windy
+            </a>
+          </div>
+        </div>
+
         {/* Body */}
         <div className="px-3 py-2 overflow-y-auto flex-1">
           {error && (
@@ -107,9 +119,8 @@ export default function LocationPopup({ name, lat, lon, winds, dateStr, model, l
                   <th className="text-left pb-1.5 font-normal">Час</th>
                   <th className="text-center pb-1.5 font-normal">Оценка</th>
                   <th className="text-center pb-1.5 font-normal">Ветер 80м</th>
-                  <th className="text-right pb-1.5 font-normal">Порывы</th>
-                  <th className="text-right pb-1.5 font-normal">Темп</th>
-                  <th className="text-right pb-1.5 font-normal">Кромка</th>
+                  <th className="text-right pb-1.5 font-normal">Пор.</th>
+                  <th className="text-right pb-1.5 font-normal">°C / ☁м</th>
                 </tr>
               </thead>
               <tbody>
@@ -131,18 +142,14 @@ export default function LocationPopup({ name, lat, lon, winds, dateStr, model, l
                         <div className="flex items-center justify-center gap-1">
                           <WindArrow degrees={h.windDir80m} size={11} color="#a78bfa" />
                           <span className="text-violet-300 font-bold">{h.windSpeed80m.toFixed(1)}</span>
-                          <span className={`${dirColor}`}>{windDirLabel(h.windDir80m)}</span>
+                          <span className={dirColor}>{windDirLabel(h.windDir80m)}</span>
                           <WeatherIcon code={h.weatherCode} />
                         </div>
                       </td>
                       <td className="py-1.5 text-right text-orange-300">↑{h.windGusts.toFixed(1)}</td>
-                      <td className="py-1.5 text-right text-gray-300">{h.temperature.toFixed(0)}°</td>
-                      <td className={`py-1.5 text-right font-mono ${
-                        h.cloudBase < 500  ? "text-red-400" :
-                        h.cloudBase < 800  ? "text-yellow-400" :
-                        h.cloudBase < 1500 ? "text-lime-400" :
-                                             "text-green-400"
-                      }`}>{h.cloudBase}м</td>
+                      <td className="py-1.5 text-right text-gray-400">
+                        {h.temperature.toFixed(0)}° / {h.cloudBase}
+                      </td>
                     </tr>
                   );
                 })}
